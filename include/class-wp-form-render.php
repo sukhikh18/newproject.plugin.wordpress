@@ -1,5 +1,5 @@
 <?php
-namespace DTSettings;
+namespace PLUGIN_NAME;
 /**
  * Class Name: WPForm ( :: render )
  * Class URI: https://github.com/nikolays93/WPForm
@@ -26,7 +26,7 @@ function _isset_empty(&$var, $unset = false){ return _isset_default( $var, '', $
  * @param  string $option_name name of wordpress option ( @see get_option() )
  * @return array               filtred inputs
  */
-add_filter( 'DTSettings\dt_admin_options', 'DTSettings\admin_page_options_filter', 10, 2 );
+add_filter( 'PLUGIN_NAME\dt_admin_options', 'PLUGIN_NAME\admin_page_options_filter', 10, 2 );
 function admin_page_options_filter( $inputs, $option_name = false ){
   if( ! $option_name )
     $option_name = _isset_false($_GET['page']);

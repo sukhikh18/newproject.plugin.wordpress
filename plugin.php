@@ -10,34 +10,31 @@ Author EMAIL: nikolayS93@ya.ru
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
+namespace PLUGIN_NAME;
 
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
 
-define('COMPILER_OPT', 'wp-compiler');
-define('COMPILER_PLUG_DIR', plugin_dir_path( __FILE__ ) );
-define('SCSS_OPTION', 'scss');
-define('SCSS_CACHE', 'scss-cache');
-define('SCSS_DEFAULT_DIR', get_template_directory() . '/assets/scss/');
-define('ASSETS_DEFAULT_DIR', get_template_directory() . '/assets/');
+define('NEW_OPTION', 'option_name');
+define('NEW_PLUG_DIR', plugin_dir_path( __FILE__ ) );
 
 register_activation_hook(__FILE__, function(){
     $defaults = array(
-      'scss-auto-compile' => 'on',
+      'some_option' => 'on',
       );
 
     add_option( COMPILER_OPT, $defaults );
 });
 
 if(is_admin()){
-  require_once COMPILER_PLUG_DIR . '/inc/class-wp-admin-page-render.php';
-  require_once COMPILER_PLUG_DIR . '/inc/class-wp-form-render.php';
+  require_once NEW_PLUG_DIR . '/inc/class-wp-admin-page-render.php';
+  require_once NEW_PLUG_DIR . '/inc/class-wp-form-render.php';
 
-  $page = new SCSS_COMPILER\WPAdminPageRender( COMPILER_OPT,
+  $page = new PLUGIN_NAME\WPAdminPageRender( COMPILER_OPT,
   array(
     'parent' => 'options-general.php',
-    'title' => __('Настройки компиляции проекта'),
-    'menu' => __('Компиляция'),
+    'title' => __('Test New Plugin'),
+    'menu' => __('New Plug Page'),
     ), '_render_page' );
 }
 
@@ -56,8 +53,9 @@ function _render_page(){
       ),
     );
 
-  SCSS_COMPILER\WPForm::render( apply_filters( 'SCSS_COMPILER\dt_admin_options', $data ),
-    SCSS_COMPILER\WPForm::active(COMPILER_OPT, false, true),
+  PLUGIN_NAME\WPForm::render(
+    apply_filters( 'PLUGIN_NAME\dt_admin_options', $data ),
+    PLUGIN_NAME\WPForm::active(COMPILER_OPT, false, true),
     true,
     array('clear_value' => false)
     );

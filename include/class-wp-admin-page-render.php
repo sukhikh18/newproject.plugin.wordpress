@@ -1,5 +1,5 @@
 <?php
-namespace DTSettings;
+namespace PLUGIN_NAME;
 /**
  * Class Name: WPAdminPageRender
  * Class URI: https://github.com/nikolays93/classes.git
