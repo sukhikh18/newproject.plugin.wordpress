@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: NEW PLUGIN
+Plugin Name: Test new page
 Plugin URI: 
 Description: 
 Version: 1.1b
@@ -23,26 +23,32 @@ register_activation_hook(__FILE__, function(){
       'some_option' => 'on',
       );
 
-    add_option( COMPILER_OPT, $defaults );
+    add_option( NEW_OPTION, $defaults );
 });
 
 if(is_admin()){
   require_once NEW_PLUG_DIR . '/inc/class-wp-admin-page-render.php';
   require_once NEW_PLUG_DIR . '/inc/class-wp-form-render.php';
 
-  $page = new PLUGIN_NAME\WPAdminPageRender( COMPILER_OPT,
+  add_filter( NEW_OPTION . '_columns', function(){return 2;} );
+
+  $page = new WPAdminPageRender( NEW_OPTION,
   array(
     'parent' => 'options-general.php',
     'title' => __('Test New Plugin'),
     'menu' => __('New Plug Page'),
-    ), '_render_page' );
-}
+    ), 'PLUGIN_NAME\_render_page' );
 
-$options = get_option( COMPILER_OPT );
+  $page->add_metabox( 'handle', 'label', 'PLUGIN_NAME\qq');
+  $page->set_metaboxes();
+}
 
 /**
  * Admin Page
  */
+function qq(){
+	echo "string";
+}
 function _render_page(){
   $data = array(
     array(
@@ -53,9 +59,9 @@ function _render_page(){
       ),
     );
 
-  PLUGIN_NAME\WPForm::render(
+  WPForm::render(
     apply_filters( 'PLUGIN_NAME\dt_admin_options', $data ),
-    PLUGIN_NAME\WPForm::active(COMPILER_OPT, false, true),
+   WPForm::active(NEW_OPTION, false, true),
     true,
     array('clear_value' => false)
     );
