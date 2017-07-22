@@ -1,70 +1,69 @@
 <?php
 /*
-Plugin Name: Test new page
+Plugin Name: Bootstrap 4 Plugins for MCE
 Plugin URI: 
 Description: 
-Version: 1.1b
+Version: 1.0
 Author: NikolayS93
 Author URI: https://vk.com/nikolays_93
 Author EMAIL: nikolayS93@ya.ru
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
-namespace PLUGIN_NAME;
 
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
 
-define('NEW_OPTION', 'option_name');
-define('NEW_PLUG_DIR', plugin_dir_path( __FILE__ ) );
+add_action( 'plugins_loaded', function(){
+  new BS4Plugins();
+} );
+register_activation_hook( __FILE__, array( 'BS4Plugins', 'activate' ) );
+// register_deactivation_hook( __FILE__, array( 'BS4Plugins', 'deactivate' ) );
+register_uninstall_hook( __FILE__, array( 'BS4Plugins', 'uninstall' ) );
 
-register_activation_hook(__FILE__, function(){
-    $defaults = array(
-      'some_option' => 'on',
-      );
+class BS4Plugins {
+  const SETTINGS = 'BS4MCE';
 
-    add_option( NEW_OPTION, $defaults );
-});
+  public $settings = array();
 
-if(is_admin()){
-  require_once NEW_PLUG_DIR . '/inc/class-wp-admin-page-render.php';
-  require_once NEW_PLUG_DIR . '/inc/class-wp-form-render.php';
+  private function __clone() {}
+  private function __wakeup() {}
 
-  add_filter( NEW_OPTION . '_columns', function(){return 2;} );
+  public static function activate(){
+    add_option( self::SETTINGS, array() );
+  }
+  
+  public static function uninstall(){
+    delete_option(self::SETTINGS);
+  }
 
-  $page = new WPAdminPageRender( NEW_OPTION,
-  array(
-    'parent' => 'options-general.php',
-    'title' => __('Test New Plugin'),
-    'menu' => __('New Plug Page'),
-    ), 'PLUGIN_NAME\_render_page' );
+  function __construct() {
+    self::define_constants();
+    self::load_classes();
+    $this->settings = get_option( self::SETTINGS, array() );
 
-  $page->add_metabox( 'handle', 'label', 'PLUGIN_NAME\qq');
-  $page->set_metaboxes();
-}
+    if( is_admin() ){
+      new WPAdminPageRender(
+        self::SETTINGS,
+        array(
+          'parent' => 'options-general.php',
+          'title' => __('Bootstrap Plugins for MCE'),
+          'menu' => __('Bootstrap for MCE'),
+          ),
+        array($this, 'admin_settings_page')
+        );
+    }
+  }
 
-/**
- * Admin Page
- */
-function qq(){
-	echo "string";
-}
-function _render_page(){
-  $data = array(
-    array(
-      'id' => 'scss-auto-compile',
-      'type' => 'checkbox',
-      'label' => 'Автокомпиляция',
-      'desc' => 'По умолчанию автокомпиляция работает только с style.scss используя кэширование (Не компилируется если файл не изменялся с последней компиляции)',
-      ),
-    );
+  private static function define_constants(){
+    define('BSMCE_DIR', plugin_dir_path( __FILE__ ) );
+  }
+  private static function load_classes(){
+    require_once BSMCE_DIR . '/inc/class-wp-admin-page-render.php';
+    require_once BSMCE_DIR . '/inc/class-wp-form-render.php';
+  }
 
-  WPForm::render(
-    apply_filters( 'PLUGIN_NAME\dt_admin_options', $data ),
-   WPForm::active(NEW_OPTION, false, true),
-    true,
-    array('clear_value' => false)
-    );
-
-  submit_button();
+  function admin_settings_page(){
+    echo "render page here";
+  }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Name: WPAdminPageRender
  * Class URI: https://github.com/nikolays93/classes.git
@@ -9,12 +10,33 @@
  * License: GNU General Public License v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
-namespace PLUGIN_NAME;
 
-if ( ! defined( 'ABSPATH' ) )
-  exit; // disable direct access
+if ( !function_exists('array_filter_recursive') ) {
+	function array_filter_recursive($input){
+		foreach ($input as &$value) {
+			if ( is_array($value) )
+				$value = array_filter_recursive($value);
+		}
 
-class WPAdminPageRender {
+		return array_filter($input);
+	}
+}
+
+if ( !function_exists('array_map_recursive') ) {
+	function array_map_recursive($callback, $array){
+		$func = function ($item) use (&$func, &$callback) {
+			return is_array($item) ? array_map($func, $item) : call_user_func($callback, $item);
+		};
+
+		return array_map($func, $array);
+	}
+}
+
+if( class_exists('WPAdminPageRender') )
+	return;
+
+class WPAdminPageRender
+{
 	public $page = '';
 	public $screen = '';
 	public $option_name = '';
@@ -22,7 +44,7 @@ class WPAdminPageRender {
 	protected $args = array(
 		'parent'      => 'options-general.php',
 		'title'       => '',
-		'menu'        => 'New page',
+		'menu'        => 'Test page',
 		'permissions' => 'manage_options',
 		);
 	protected $page_content_cb = '';
@@ -34,7 +56,7 @@ class WPAdminPageRender {
 	{
 		// slug required
 		if( !$page_slug )
-			wp_die( __('You have false slug in admin page class', 'Slug is false or empty') );
+			wp_die( 'You have false slug in admin page class', 'Slug is false or empty' );
 
 		$this->page = $page_slug;
 		if( is_array( $args ) )
@@ -56,11 +78,11 @@ class WPAdminPageRender {
 	function add_page(){
 		$this->screen = add_submenu_page(
 			$this->args['parent'],
-			esc_html( $this->args['title'] ),
-			esc_html( $this->args['menu'] ),
-			esc_attr( $this->args['permissions'] ),
-			esc_attr( $this->page ),
-			array($this, 'render_page'), 10);
+			$this->args['title'],
+			$this->args['menu'],
+			$this->args['permissions'],
+			$this->page,
+			array($this,'render_page'), 10);
 
 		add_action('load-'.$this->screen, array($this,'page_actions'),9);
 		add_action('admin_footer-'.$this->screen, array($this,'footer_scripts'));
@@ -75,11 +97,11 @@ class WPAdminPageRender {
 
 	function add_metabox( $handle, $label, $render_cb, $position = 'normal', $priority = 'high'){
 		$this->metaboxes[] = array(
-			'handle'    => esc_attr( $handle ),
-			'label'     => esc_html( $label ),
-			'render_cb' => sanitize_text_field( $render_cb ),
-			'position'  => intval($position),
-			'priority'  => esc_attr($priority),
+			'handle' => $handle,
+			'label' => $label,
+			'render_cb' => $render_cb,
+			'position' => $position,
+			'priority' => $priority
 			);
 	}
 
@@ -257,20 +279,4 @@ class WPAdminPageRender {
 
 		return $inputs;
 	}
-}
-
-function array_filter_recursive($input){
-	foreach ($input as &$value) {
-		if ( is_array($value) )
-			$value = array_filter_recursive($value);
-	}
-
-	return array_filter($input);
-}
-function array_map_recursive($callback, $array){
-	$func = function ($item) use (&$func, &$callback) {
-		return is_array($item) ? array_map($func, $item) : call_user_func($callback, $item);
-	};
-
-	return array_map($func, $array);
 }
