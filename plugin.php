@@ -64,6 +64,22 @@ class BS4Plugins {
   }
 
   function admin_settings_page(){
-    echo "render page here";
+
+    echo __("Choose options:");
+
+    $args = array(
+      array(
+        'id' => 'add][tabs',
+        'type' => 'checkbox',
+        'label' => __('Add Tabs'),
+        'desc' => __('Include bootstrap tabs to MCE'),
+        ),
+      );
+    
+    $active = WPForm::active(self::SETTINGS, false, true);
+    WPForm::render( $args, $active, true, array('admin_page' => self::SETTINGS) );
+
+    submit_button( __('Save') );
+    
   }
 }
