@@ -4,7 +4,7 @@
  * Class Name: WPAdminPageRender
  * Class URI: https://github.com/nikolays93/classes.git
  * Description: Create a new custom admin page.
- * Version: 1.1
+ * Version: 2.0
  * Author: NikolayS93
  * Author URI: https://vk.com/nikolays_93
  * License: GNU General Public License v2 or later
@@ -37,23 +37,26 @@ if( class_exists('WPAdminPageRender') )
 
 class WPAdminPageRender
 {
+	const ver = '2.0';
+
 	public $page = '';
 	public $screen = '';
 	public $option_name = '';
+	public $tab_sections = array();
 
 	protected $args = array(
 		'parent'      => 'options-general.php',
 		'title'       => '',
 		'menu'        => 'Test page',
 		'permissions' => 'manage_options',
+		'tab_sections'=> null,
 		);
 	protected $page_content_cb = '';
 	protected $page_valid_cb = '';
 
 	protected $metaboxes = array();
 
-	function __construct( $page_slug, $args, $page_content_cb, $option_name = false, $valid_cb = false )
-	{
+	function __construct( $page_slug, $args, $page_content_cb, $option_name = false, $valid_cb = false ){
 		// slug required
 		if( !$page_slug )
 			wp_die( 'You have false slug in admin page class', 'Slug is false or empty' );
@@ -61,6 +64,9 @@ class WPAdminPageRender
 		$this->page = $page_slug;
 		if( is_array( $args ) )
 			$this->args = array_merge( $this->args, $args );
+
+		if(!empty($this->args['tab_sections']))
+			$this->tab_sections = $this->args['tab_sections'];
 
 		$this->page_content_cb = $page_content_cb;
 		$this->option_name = ( $option_name ) ? $option_name : $this->page;
@@ -72,7 +78,7 @@ class WPAdminPageRender
 
 	/**
 	 * Add page wordpress handle
-	 * 
+	 *
 	 * @see wordpress codex : add_submenu_page()
 	 */
 	function add_page(){
@@ -91,11 +97,12 @@ class WPAdminPageRender
 	function _metabox(){
 		foreach ($this->metaboxes as $metabox) {
 			extract($metabox);
+
 			add_meta_box( $handle, $label, $render_cb, $this->screen, $position, $priority);
 		}
 	}
 
-	function add_metabox( $handle, $label, $render_cb, $position = 'normal', $priority = 'high'){
+	public function add_metabox( $handle, $label, $render_cb, $position = 'normal', $priority = 'high'){
 		$this->metaboxes[] = array(
 			'handle' => $handle,
 			'label' => $label,
@@ -105,10 +112,9 @@ class WPAdminPageRender
 			);
 	}
 
-	function set_metaboxes(){
+	public function set_metaboxes(){
 		add_action( 'add_meta_boxes', array($this, '_metabox') );
 	}
-	
 
 	/**
 	 * Init actions for created page
@@ -117,7 +123,7 @@ class WPAdminPageRender
 		add_action( $this->page . '_inside_page_content', array($this, 'page_render'), 10);
 
 		add_action( $this->page . '_inside_side_container', array($this, 'side_render'), 10 );
-		
+
 		add_action( $this->page . '_inside_normal_container', array($this, 'normal_render'), 10 );
 		add_action( $this->page . '_inside_advanced_container', array($this, 'advanced_render'), 10 );
 
@@ -132,26 +138,82 @@ class WPAdminPageRender
 	}
 
 	function page_render(){
-		call_user_func($this->page_content_cb);
+		/** @ Experemental ! (tabs) */
+		if( is_array($this->page_content_cb) && !empty($this->args['tab_sections']) ){
+			if (!empty($_GET['tab'])){
+				$current = $_GET['tab'];
+			}
+			else {
+				reset($this->tab_sections);
+				$current = key($this->tab_sections);
+			}
+
+			echo '<style>#tabs.navs {padding-bottom: 0;margin: 0 0 8px;}</style><h2 id="tabs" class="navs nav-tab-wrapper">';
+			foreach ( $this->tab_sections as $tab => $tab_title) {
+				$class = ( $tab == $current ) ? ' nav-tab-active' : '';
+				echo "<a class='nav-tab{$class}' href='?page=".$this->page."&tab={$tab}' data-tab='{$tab}'>$tab_title</a>";
+			}
+			echo '</h2>';
+
+			foreach ($this->page_content_cb as $tab => $render_cb) {
+				$class = ($tab == $current) ? '' : ' class="hidden"';
+				echo "<div id='{$tab}'{$class}>";
+				call_user_func($render_cb);
+				echo "</div>";
+			}
+		}
+		else {
+			call_user_func($this->page_content_cb);
+		}
 	}
 	function side_render(){
-		do_meta_boxes('','side',null);
+		do_meta_boxes($this->screen,'side',null);
 	}
 	function normal_render(){
-		do_meta_boxes('','normal',null);
+		do_meta_boxes($this->screen,'normal',null);
 	}
 	function advanced_render(){
-		do_meta_boxes('','advanced',null);
+		do_meta_boxes($this->screen,'advanced',null);
 	}
 
 	function footer_scripts(){
-		
+
 		echo "<script> jQuery(document).ready(function($){ postboxes.add_postbox_toggles(pagenow); });</script>";
+		if( !empty($this->args['tab_sections']) ):
+		$eg = __('e.g. '); ?>
+		<script type="text/javascript">
+			jQuery(document).ready(function($) {
+				$('input[type=\'text\'], input[type=\'number\'], textarea').on('focus', function(){
+					if($(this).val() == ''){
+						$(this).val($(this).attr('placeholder').replace('<?php echo $eg; ?>', '') );
+						$(this).select();
+					}
+				});
+
+				$('a.nav-tab').on('click', function(e){
+					e.preventDefault();
+					if($(this).hasClass('nav-tab-active'))
+						return false;
+
+					var loc = window.location.href.split('&tab')[0] + '&tab=' + $(this).attr('data-tab');
+					history.replaceState(null, null, loc);
+					$('input[name="_wp_http_referer"]').val(loc + '&settings-updated=true');
+
+					$(this).closest('div').find('#' + $('.nav-tab-active').attr('data-tab')).addClass('hidden');
+					$('.nav-tab-active').removeClass('nav-tab-active');
+
+					$(this).closest('div').find('#' + $(this).attr('data-tab') ).removeClass('hidden');
+					$(this).addClass('nav-tab-active');
+				});
+			});
+		</script>
+		<?php
+		endif;
 	}
 
 	/**
 	 * View html on added page
-	 * 
+	 *
 	 * @has_hooks:
 	 * $pageslug . _after_title (default empty hook)
 	 * $pageslug . _before_form_inputs (default empty hook)
@@ -172,7 +234,7 @@ class WPAdminPageRender
 
 			<?php screen_icon(); ?>
 			<h2> <?php echo esc_html($this->args['title']);?> </h2>
-			
+
 			<?php do_action( $this->page . '_after_title'); ?>
 
 			<?php
@@ -185,7 +247,7 @@ class WPAdminPageRender
 
 				<div id="poststuff">
 
-					<div id="post-body" class="metabox-holder columns-<?php echo 1 == get_current_screen()->get_columns() ? '1' : '2'; ?>"> 
+					<div id="post-body" class="metabox-holder columns-<?php echo 1 == get_current_screen()->get_columns() ? '1' : '2'; ?>">
 
 						<div id="post-body-content">
 							<?php
@@ -196,7 +258,7 @@ class WPAdminPageRender
 							 */
 							do_action( $this->page . '_inside_page_content');
 							?>
-						</div>    
+						</div>
 
 						<div id="postbox-container-1" class="postbox-container side-container">
 							<?php
@@ -207,7 +269,7 @@ class WPAdminPageRender
 							 */
 							do_action( $this->page . '_inside_side_container');
 							?>
-						</div>    
+						</div>
 
 						<div id="postbox-container-2" class="postbox-container normal-container">
 							<?php
@@ -218,7 +280,7 @@ class WPAdminPageRender
 							 */
 							do_action( $this->page . '_inside_normal_container');
 							?>
-						</div>	
+						</div>
 						<div id="postbox-container-3" class="postbox-container advanced-container">
 							<?php
 							/**
@@ -228,8 +290,8 @@ class WPAdminPageRender
 							 */
 							do_action( $this->page . '_inside_advanced_container');
 							?>
-						</div>     					
-						
+						</div>
+
 					</div> <!-- #post-body -->
 				</div> <!-- #poststuff -->
 
@@ -246,11 +308,11 @@ class WPAdminPageRender
 			</form>
 
 		</div><!-- .wrap -->
-		
+
 		<div class="clear" style="clear: both;"></div>
 
 		<?php do_action( $this->page . '_after_page_wrap'); ?>
-		
+
 		<?php
 	}
 
@@ -263,7 +325,7 @@ class WPAdminPageRender
 	}
 	/**
 	 * Validate registred options
-	 * 
+	 *
 	 * @param  _POST $inputs post data for update
 	 * @return array $inputs filtred data for save
 	 */
