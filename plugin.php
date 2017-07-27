@@ -14,20 +14,23 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
 
-add_action( 'plugins_loaded', function(){
-  new PluginClassName();
-} );
-register_activation_hook( __FILE__, array( 'PluginClassName', 'activate' ) );
-// register_deactivation_hook( __FILE__, array( 'PluginClassName', 'deactivate' ) );
-register_uninstall_hook( __FILE__, array( 'PluginClassName', 'uninstall' ) );
-
 class PluginClassName {
   const SETTINGS = 'Page_Slug';
 
   public $settings = array();
 
+  /* Singleton Class */
+  private function __construct() {}
   private function __clone() {}
   private function __wakeup() {}
+
+  private static $instance = null;
+  public static function get_instance() {
+    if ( ! isset( self::$instance ) )
+      self::$instance = new self;
+
+    return self::$instance;
+  }
 
   public static function activate(){
     add_option( self::SETTINGS, array() );
@@ -37,7 +40,7 @@ class PluginClassName {
     delete_option(self::SETTINGS);
   }
 
-  function __construct() {
+  function init() {
     self::define_constants();
     self::load_classes();
     $this->settings = get_option( self::SETTINGS, array() );
@@ -99,3 +102,10 @@ class PluginClassName {
     echo "METABOX";
   }
 }
+
+add_action( 'plugins_loaded', function(){
+  $p = PluginClassName::get_instance(); $p->init();
+} );
+register_activation_hook( __FILE__, array( 'PluginClassName', 'activate' ) );
+// register_deactivation_hook( __FILE__, array( 'PluginClassName', 'deactivate' ) );
+register_uninstall_hook( __FILE__, array( 'PluginClassName', 'uninstall' ) );
