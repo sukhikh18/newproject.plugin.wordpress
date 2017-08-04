@@ -20,7 +20,6 @@ class PluginClassName {
   public $settings = array();
 
   /* Singleton Class */
-  private function __construct() {}
   private function __clone() {}
   private function __wakeup() {}
 
@@ -40,7 +39,7 @@ class PluginClassName {
     delete_option(self::SETTINGS);
   }
 
-  function init() {
+  private function __construct() {
     self::define_constants();
     self::load_classes();
     $this->settings = get_option( self::SETTINGS, array() );
@@ -68,11 +67,11 @@ class PluginClassName {
   }
 
   private static function define_constants(){
-    define('BSMCE_DIR', plugin_dir_path( __FILE__ ) );
+    define('PLUGIN_DIR', rtrim( plugin_dir_path( __FILE__ ), '/') );
   }
   private static function load_classes(){
-    require_once BSMCE_DIR . '/inc/class-wp-admin-page-render.php';
-    require_once BSMCE_DIR . '/inc/class-wp-form-render.php';
+    require_once PLUGIN_DIR . '/inc/class-wp-admin-page-render.php';
+    require_once PLUGIN_DIR . '/inc/class-wp-form-render.php';
   }
 
   function admin_settings_page(){
@@ -103,9 +102,7 @@ class PluginClassName {
   }
 }
 
-add_action( 'plugins_loaded', function(){
-  $p = PluginClassName::get_instance(); $p->init();
-} );
+add_action( 'plugins_loaded', array('PluginClassName', 'get_instance') );
 register_activation_hook( __FILE__, array( 'PluginClassName', 'activate' ) );
 // register_deactivation_hook( __FILE__, array( 'PluginClassName', 'deactivate' ) );
 register_uninstall_hook( __FILE__, array( 'PluginClassName', 'uninstall' ) );
