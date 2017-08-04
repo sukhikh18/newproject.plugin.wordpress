@@ -3,12 +3,13 @@
  * Class Name: WPForm ( :: render )
  * Class URI: https://github.com/nikolays93/WPForm
  * Description: render forms as wordpress fields
- * Version: 1.5
+ * Version: 1.6
  * Author: NikolayS93
  * Author URI: https://vk.com/nikolays_93
  * License: GNU General Public License v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
+namespace PSettings;
 
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
@@ -20,10 +21,10 @@ if( ! function_exists('_isset_default') ){
     return $result;
   }
 }
-if (!function_exists('_isset_false')) {
+if( ! function_exists('_isset_false') ){
   function _isset_false(&$var, $unset = false){ return _isset_default( $var, false, $unset ); }
 }
-if(!function_exists('_isset_empty')){
+if( ! function_exists('_isset_empty') ){
   function _isset_empty(&$var, $unset = false){ return _isset_default( $var, '', $unset ); }
 }
 
@@ -31,6 +32,8 @@ if( class_exists('WPForm') )
   return;
 
 class WPForm {
+  const ver = '1.6';
+
   static protected $clear_value;
 
   /**
@@ -56,31 +59,36 @@ class WPForm {
 
     return $defaults;
   }
-  
+
   /**
    * @todo: add recursive handle
-   * 
-   * @param  string   $option_name      
+   *
+   * @param  string   $option_name
    * @param  string   $sub_name         $option_name[$sub_name]
    * @param  boolean  $is_admin_options recursive split value array key with main array
    * @param  int|bool $postmeta         int = post_id for post meta, true = get post_id from global post
    * @return array                      installed options
    */
-  public static function active($option_name, $sub_name = false, $is_admin_options = false, $postmeta = false){
-    
+  public static function active($option, $sub_name = false, $is_admin_options = false, $postmeta = false){
+
     global $post;
 
     /** get active values */
-    if( $postmeta ){
-      if( !is_int($postmeta) && !isset($post->ID) )
-        return false;
+    if( is_string($option) ){
+      if( $postmeta ){
+        if( !is_int($postmeta) && !isset($post->ID) )
+          return false;
 
-      $post_id = ($postmeta === true) ? $post->ID : $postmeta;
+        $post_id = ($postmeta === true) ? $post->ID : $postmeta;
 
-      $active = get_post_meta( $post_id, $option_name, true );
+        $active = get_post_meta( $post_id, $option, true );
+      }
+      else {
+        $active = get_option( $option, array() );
+      }
     }
     else {
-      $active = get_option( $option_name, array() );
+      $active = $option;
     }
 
     /** get subvalue */
@@ -120,7 +128,7 @@ class WPForm {
       'form_wrap'   => array('<table class="table form-table"><tbody>', '</tbody></table>'),
       'label_tag'   => 'th',
       'hide_desc'   => false,
-      'clear_value' => 'false'
+      'clear_value' => false,
       );
     $args = array_merge($default_args, $args);
 
@@ -209,13 +217,13 @@ class WPForm {
         echo '<pre> Параметры формы не были переданы </pre>';
       return false;
     }
-    
+
     if( isset($render_data['id']) )
         $render_data = array($render_data);
 
-    if($active === false)
+    if( ! $active  )
       $active = array();
-    
+
     $args = self::set_defaults( $args, $is_table );
     if( $args['admin_page'] )
       $render_data = self::admin_page_options( $render_data, $args['admin_page'] );
@@ -233,7 +241,7 @@ class WPForm {
       $default = _isset_false($input['default'], 1);
       $value   = _isset_false($input['value']);
       $check_active = _isset_false($input['check_active'], 1);
-      
+
       if( $input['type'] != 'checkbox' && $input['type'] != 'radio' )
         _isset_default( $input['placeholder'], $default );
 
@@ -245,18 +253,18 @@ class WPForm {
           $input['name'] = _isset_empty($input['id']);
 
       $input['id'] = str_replace('][', '_', $input['id']);
-      
+
       /**
        * set values
        */
       $active_name = $check_active ? $input[$check_active] : str_replace('[]', '', $input['name']);
-      
+
       $active_value = false;
       if( is_array($active) && sizeof($active) > 0 ){
         if( isset($active[$active_name]) )
           $active_value = $active[$active_name];
-        if( in_array($active_name, $active) )
-          $active_value = $active_name;
+        // if( in_array($active_name, $active) )
+        //   $active_value = $active_name;
       }
 
       $entry = '';
@@ -284,7 +292,7 @@ class WPForm {
       } else {
         $desc_html = '';
       }
-      
+
       if(!$is_table){
         $html[] = $before . $args['item_wrap'][0] . $input_html . $args['item_wrap'][1] . $after . $desc_html;
       }
@@ -323,7 +331,7 @@ class WPForm {
    * @param  mixed         $value   ['value'] array setting (string || boolean)(!isset ? false)
    * @param  string||false $active  value from $active option
    * @param  mixed         $default ['default'] array setting (string || boolean)(!isset ? false)
-   * 
+   *
    * @return boolean       checked or not
    */
   private static function is_checked( $value, $active, $default ){
