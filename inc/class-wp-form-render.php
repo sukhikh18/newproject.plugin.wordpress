@@ -3,13 +3,12 @@
  * Class Name: WPForm ( :: render )
  * Class URI: https://github.com/nikolays93/WPForm
  * Description: render forms as wordpress fields
- * Version: 1.6
+ * Version: 1.7
  * Author: NikolayS93
  * Author URI: https://vk.com/nikolays_93
  * License: GNU General Public License v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
-namespace PSettings;
 
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
@@ -161,6 +160,9 @@ class WPForm {
       return $inputs;
 
     foreach ( $inputs as &$input ) {
+      if ( ! isset($input['id']) && ! isset($input['name']) )
+        continue;
+
       if( isset($input['name']) )
         $input['name'] = "{$option_name}[{$input['name']}]";
       else
@@ -235,6 +237,12 @@ class WPForm {
         $html[] = $args['form_wrap'][0];
 
     foreach ( $render_data as $input ) {
+      if ( ! isset($input['id']) && ! isset($input['name']) )
+        continue;
+
+      if( ! isset( $input['type'] ) )
+        $input['type'] = 'checkbox';
+
       $label   = _isset_false($input['label'], 1);
       $before  = _isset_empty($input['before'], 1);
       $after   = _isset_empty($input['after'], 1);
@@ -414,6 +422,9 @@ class WPForm {
   public static function render_select( $input, $active_id, $is_table, $label = '' ){
     $result = '';
     $options = _isset_false($input['options'], 1);
+    if( isset($input['value']) && $input['value'] !== false && $input['value'] !== NULL )
+      $active_id = $input['value'];
+
     if(! $options )
       return false;
 

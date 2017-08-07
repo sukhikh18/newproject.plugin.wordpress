@@ -180,33 +180,27 @@ class WPAdminPageRender
 
 		echo "<script> jQuery(document).ready(function($){ postboxes.add_postbox_toggles(pagenow); });</script>";
 		if( !empty($this->args['tab_sections']) ):
-		$eg = __('e.g. '); ?>
-		<script type="text/javascript">
-			jQuery(document).ready(function($) {
-				$('input[type=\'text\'], input[type=\'number\'], textarea').on('focus', function(){
-					if($(this).val() == ''){
-						$(this).val($(this).attr('placeholder').replace('<?php echo $eg; ?>', '') );
-						$(this).select();
-					}
+		?>
+			<script type="text/javascript">
+				jQuery(document).ready(function($) {
+
+					$('a.nav-tab').on('click', function(e){
+						e.preventDefault();
+						if($(this).hasClass('nav-tab-active'))
+							return false;
+
+						var loc = window.location.href.split('&tab')[0] + '&tab=' + $(this).attr('data-tab');
+						history.replaceState(null, null, loc);
+						$('input[name="_wp_http_referer"]').val(loc + '&settings-updated=true');
+
+						$(this).closest('div').find('#' + $('.nav-tab-active').attr('data-tab')).addClass('hidden');
+						$('.nav-tab-active').removeClass('nav-tab-active');
+
+						$(this).closest('div').find('#' + $(this).attr('data-tab') ).removeClass('hidden');
+						$(this).addClass('nav-tab-active');
+					});
 				});
-
-				$('a.nav-tab').on('click', function(e){
-					e.preventDefault();
-					if($(this).hasClass('nav-tab-active'))
-						return false;
-
-					var loc = window.location.href.split('&tab')[0] + '&tab=' + $(this).attr('data-tab');
-					history.replaceState(null, null, loc);
-					$('input[name="_wp_http_referer"]').val(loc + '&settings-updated=true');
-
-					$(this).closest('div').find('#' + $('.nav-tab-active').attr('data-tab')).addClass('hidden');
-					$('.nav-tab-active').removeClass('nav-tab-active');
-
-					$(this).closest('div').find('#' + $(this).attr('data-tab') ).removeClass('hidden');
-					$(this).addClass('nav-tab-active');
-				});
-			});
-		</script>
+			</script>
 		<?php
 		endif;
 	}
