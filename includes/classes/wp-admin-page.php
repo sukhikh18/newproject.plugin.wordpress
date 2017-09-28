@@ -34,7 +34,6 @@ if ( !function_exists('array_map_recursive') ) {
 	}
 }
 
-if( ! class_exists('WP_Admin_Page') ) :
 class WP_Admin_Page
 {
 	public $page = '';
@@ -55,6 +54,7 @@ class WP_Admin_Page
 			'parent'      => 'options-general.php',
 			'title'       => '',
 			'menu'        => 'New Modern Page',
+			'menu_pos'    => 50,
 			'callback'    => array($this, 'not_set_callback'),
 			'validate'    => array($this, 'validate_options'),
 			'permissions' => 'manage_options',
@@ -76,13 +76,28 @@ class WP_Admin_Page
 	 * @see wordpress codex : add_submenu_page()
 	 */
 	function _add_page(){
-		$this->screen = add_submenu_page(
-			$this->args['parent'],
-			$this->args['title'],
-			$this->args['menu'],
-			$this->args['permissions'],
-			$this->page,
-			array($this,'render_page'), 10);
+		if( $this->args['parent'] ) {
+			$this->screen = add_submenu_page(
+				$this->args['parent'],
+				$this->args['title'],
+				$this->args['menu'],
+				$this->args['permissions'],
+				$this->page,
+				array($this,'render_page'),
+				$this->args['menu_pos']
+				);
+		}
+		else {
+			$this->screen = add_menu_page(
+				$this->args['title'],
+				$this->args['menu'],
+				$this->args['permissions'],
+				$this->page,
+				array($this,'render_page'),
+				$icon_url = '',
+				$this->args['menu_pos']
+				);
+		}
 
 		add_action('load-'.$this->screen, array($this,'page_actions'),9);
 		add_action('admin_footer-'.$this->screen, array($this,'footer_scripts'));
@@ -330,4 +345,3 @@ class WP_Admin_Page
 		return $inputs;
 	}
 }
-endif;

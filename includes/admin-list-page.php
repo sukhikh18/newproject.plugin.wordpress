@@ -6,7 +6,7 @@ class PLUGINNAME_List_Page
     {
         $page = new WP_Admin_Page();
         $page->set_args( PLUGINNAME::SETTINGS . '-List', array(
-            'parent'      => 'options-general.php',
+            'parent'      => false,
             'title'       => '',
             'menu'        => 'New Modern Page',
             'callback'    => array($this, 'page_render'),

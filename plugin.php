@@ -55,6 +55,6 @@ class PLUGINNAME
         // includes
         require_once PLUGINNAME_DIR . '/includes/register-post_type.php';
         require_once PLUGINNAME_DIR . '/includes/admin-list-page.php';
-        require_once PLUGINNAME_DIR . '/includes/admin-edit-page.php';
+        // require_once PLUGINNAME_DIR . '/includes/admin-edit-page.php';
     }
 }
