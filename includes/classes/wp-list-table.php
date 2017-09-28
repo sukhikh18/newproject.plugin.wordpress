@@ -6,9 +6,9 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 
 class Example_List_Table extends WP_List_Table {
 
-    protected $columns_count = 0;
     protected $columns = array();
 
+    protected $fields = array();
     protected $example_data = array(
         array(
             'ID'       => 1,
@@ -44,7 +44,8 @@ class Example_List_Table extends WP_List_Table {
         ),
     );
 
-    public function __construct() {
+    public function __construct()
+    {
         // Set parent defaults.
         parent::__construct( array(
             'singular' => 'modal',
@@ -53,28 +54,64 @@ class Example_List_Table extends WP_List_Table {
         ) );
     }
 
+    public function set_fields( $post_args = array('post_type'=>'post') )
+    {
+        $res = array();
+        $posts = get_posts( $post_args );
+        // var_dump(current( $posts ));
+
+        $columns = $this->get_columns();
+        array_shift( $columns );
+        // $columns = array_merge(array('ID' => 0), $columns);
+        $allows = array_keys( $columns );
+
+        foreach ($posts as $post) {
+            $res[$post->ID]['ID'] = $post->ID;
+            foreach ($allows as $allow) {
+                if( strpos($allow, '_') == 0 ) {
+                    $res[$post->ID][$allow] = get_post_meta( $post->ID, $allow, true );
+                }
+                elseif( isset( $post->$allow ) ) {
+                    $res[$post->ID][$allow] = $post->$allow;
+                }
+            }
+        }
+        $this->example_data = $res;
+        // $this->fields = $rows;
+
+        // foreach ($rows as $row) {
+        //     foreach ($row as $field_key => $field_val) {
+        //         if( in_array($field_key, $allows) ) {
+
+        //         }
+        //     }
+        // }
+    }
     /** THEAD */
-    public function get_columns() {
+    public function get_columns()
+    {
         $columns = array(
             'cb'       => '<input type="checkbox" />',
-            'title'    => __( 'Title' ),
-            'count'    => __( 'Click Count' ),
-            'selector' => __( 'Selector' ),
-            'theme'    => __( 'Design' ),
-            'author'   => __( 'Author' ),
-            'date'     => __( 'Date' ),
+            'post_title' => __( 'Title' ),
+            '_count'    => __( 'Click Count' ),
+            '_selector' => __( 'Selector' ),
+            '_theme'    => __( 'Design' ),
+            'post_author'   => __( 'Author' ),
+            'post_date'     => __( 'Date' ),
             );
 
         return $columns;
     }
 
     /********************************* Columns ********************************/
-    protected function column_default( $item, $column_name ) {
+    protected function column_default( $item, $column_name )
+    {
 
         return isset( $item[ $column_name ] ) ? $item[ $column_name ] : 'null';
     }
 
-    protected function column_cb( $item ) {
+    protected function column_cb( $item )
+    {
         return sprintf(
             '<input type="checkbox" name="%1$s[]" value="%2$s" />',
             $this->_args['singular'],  // Let's simply repurpose the table's singular label ("movie").
@@ -82,7 +119,8 @@ class Example_List_Table extends WP_List_Table {
         );
     }
 
-    protected function column_title( $item ) {
+    protected function column_post_title( $item )
+    {
         $page = wp_unslash( $_REQUEST['page'] ); // WPCS: Input var ok.
 
         // Build edit row action.
@@ -94,7 +132,7 @@ class Example_List_Table extends WP_List_Table {
 
         $actions['edit'] = sprintf(
             '<a href="%1$s">%2$s</a>',
-            esc_url( wp_nonce_url( add_query_arg( $edit_query_args, 'admin.php' ), 'editmovie_' . $item['ID'] ) ),
+            get_edit_post_link( $item['ID'] ),
             __( 'Edit' )
         );
 
@@ -113,7 +151,7 @@ class Example_List_Table extends WP_List_Table {
 
         // Return the title contents.
         return sprintf( '%1$s %2$s',
-            $item['title'],
+            $item['post_title'],
             $this->row_actions( $actions )
         );
     }
@@ -142,11 +180,11 @@ class Example_List_Table extends WP_List_Table {
     /******************************** Sortable ********************************/
     protected function get_sortable_columns() {
         $sortable_columns = array(
-            'title'  => array( 'title', false ),
-            'count'  => array( 'count', false ),
-            'theme'  => array( 'theme', false ),
-            'author' => array( 'author', false ),
-            'date'   => array( 'date', false ),
+            'post_title'  => array( 'title', false ),
+            '_count'  => array( '_count', false ),
+            '_theme'  => array( '_theme', false ),
+            'post_author' => array( 'author', false ),
+            'post_date'   => array( 'post_date', false ),
             );
 
         return $sortable_columns;
@@ -154,7 +192,7 @@ class Example_List_Table extends WP_List_Table {
 
     protected function usort_reorder( $a, $b ) {
         // If no sort, default to title.
-        $orderby = ! empty( $_REQUEST['orderby'] ) ? wp_unslash( $_REQUEST['orderby'] ) : 'title'; // WPCS: Input var ok.
+        $orderby = ! empty( $_REQUEST['orderby'] ) ? wp_unslash( $_REQUEST['orderby'] ) : 'post_title'; // WPCS: Input var ok.
 
         // If no order, default to asc.
         $order = ! empty( $_REQUEST['order'] ) ? wp_unslash( $_REQUEST['order'] ) : 'asc'; // WPCS: Input var ok.
@@ -227,7 +265,6 @@ class Example_List_Table extends WP_List_Table {
          * http://codex.wordpress.org/Class_Reference/wpdb
          */
 
-        // var_dump( get_posts() );
         $data = $this->example_data;
 
 

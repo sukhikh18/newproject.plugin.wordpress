@@ -28,6 +28,7 @@ class PLUGINNAME_List_Page
      */
     function page_render() {
         $table = new Example_List_Table();
+        $table->set_fields( array('post_type' => PLUGINNAME::SETTINGS) );
         $table->prepare_items();
         ?>
         <div style="background:#ececec;border:1px solid #ccc;padding:0 10px;margin-top:5px;border-radius:5px;">

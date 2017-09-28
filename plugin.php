@@ -29,6 +29,8 @@ class PLUGINNAME
 
     static function activate()
     {
+        global $wpdb;
+
         add_option( self::SETTINGS, array() );
     }
 
@@ -48,8 +50,10 @@ class PLUGINNAME
         require_once PLUGINNAME_DIR . '/includes/classes/wp-list-table.php';
         require_once PLUGINNAME_DIR . '/includes/classes/wp-admin-page.php';
         require_once PLUGINNAME_DIR . '/includes/classes/wp-admin-forms.php';
+        require_once PLUGINNAME_DIR . '/includes/classes/wp-post-boxes.php';
 
         // includes
+        require_once PLUGINNAME_DIR . '/includes/register-post_type.php';
         require_once PLUGINNAME_DIR . '/includes/admin-list-page.php';
         require_once PLUGINNAME_DIR . '/includes/admin-edit-page.php';
     }
