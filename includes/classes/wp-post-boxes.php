@@ -13,8 +13,19 @@ class WP_Post_Boxes {
 
 	private static $count = 0;
 
-	function __construct( $post_types = array() ) {
-		$this->post_types = ( is_array($post_types) && sizeof($post_types) > 0) ? $post_types : array('post', 'page');
+	/**
+	 * @param mixed $post_types Типы записей на которых нужно добавить бокс
+	 */
+	function __construct( $post_types = null ) {
+		if( is_string($post_types) ) {
+			$this->post_types = array( $post_types );
+		}
+		elseif( is_array($post_types) ) {
+			$this->post_types = $post_types;
+		}
+		else {
+			$this->post_types = array('post', 'page');
+		}
 	}
 
 	/**
