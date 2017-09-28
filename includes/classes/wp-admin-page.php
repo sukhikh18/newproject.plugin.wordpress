@@ -44,7 +44,8 @@ class WP_Admin_Page
 	protected $tab_sections = array();
 
 	function __construct() {}
-	function set_args( $page_slug, $args ){
+	public function set_args( $page_slug, $args )
+	{
 		// slug required
 		if( !$page_slug )
 			wp_die( 'You have false slug in admin page class', 'Slug is false or empty' );
@@ -53,7 +54,7 @@ class WP_Admin_Page
 		$this->args = wp_parse_args( $args, array(
 			'parent'      => 'options-general.php',
 			'title'       => '',
-			'menu'        => 'New Modern Page',
+			'menu'        => 'New Page',
 			'menu_pos'    => 50,
 			'callback'    => array($this, 'not_set_callback'),
 			'validate'    => array($this, 'validate_options'),
@@ -66,8 +67,36 @@ class WP_Admin_Page
 		add_action('admin_init', array($this,'register_option_page'));
 	}
 
-	function not_set_callback() {
-		echo "Callback param not defined! @see more https://github.com/nikolays93/WPAdminPage";
+	public function set_assets( $callback )
+	{
+		if( $_GET['page'] == $this->page ) {
+			add_action( 'admin_enqueue_scripts', $callback );
+		}
+	}
+
+	public function add_metabox( $handle, $label, $render_cb, $position = 'normal', $priority = 'high'){
+		$this->metaboxes[] = array(
+			'handle' => $handle,
+			'label' => $label,
+			'render_cb' => $render_cb,
+			'position' => $position,
+			'priority' => $priority
+			);
+	}
+
+	public function set_metaboxes(){
+		add_action( 'add_meta_boxes', array($this, '_metabox') );
+	}
+
+	/**
+	 * Empty callback arg placeholder
+	 * @return die with error if WP_DEBUG
+	 */
+	function not_set_callback()
+	{
+		if( WP_DEBUG ) {
+			wp_die( "Callback param not defined! @see more https://github.com/nikolays93/WPAdminPage" );
+		}
 	}
 
 	/**
@@ -75,7 +104,8 @@ class WP_Admin_Page
 	 *
 	 * @see wordpress codex : add_submenu_page()
 	 */
-	function _add_page(){
+	function _add_page()
+	{
 		if( $this->args['parent'] ) {
 			$this->screen = add_submenu_page(
 				$this->args['parent'],
@@ -103,7 +133,8 @@ class WP_Admin_Page
 		add_action('admin_footer-'.$this->screen, array($this,'footer_scripts'));
 	}
 
-	function _metabox(){
+	function _metabox()
+	{
 		foreach ($this->metaboxes as $metabox) {
 			extract($metabox);
 
@@ -111,24 +142,11 @@ class WP_Admin_Page
 		}
 	}
 
-	public function add_metabox( $handle, $label, $render_cb, $position = 'normal', $priority = 'high'){
-		$this->metaboxes[] = array(
-			'handle' => $handle,
-			'label' => $label,
-			'render_cb' => $render_cb,
-			'position' => $position,
-			'priority' => $priority
-			);
-	}
-
-	public function set_metaboxes(){
-		add_action( 'add_meta_boxes', array($this, '_metabox') );
-	}
-
 	/**
 	 * Init actions for created page
 	 */
-	function page_actions(){
+	function page_actions()
+	{
 		add_action( $this->page . '_inside_page_content', array($this, 'page_render'), 10);
 
 		add_action( $this->page . '_inside_side_container', array($this, 'side_render'), 10 );
@@ -148,7 +166,8 @@ class WP_Admin_Page
 		wp_enqueue_script('postbox');
 	}
 
-	function page_render(){
+	function page_render()
+	{
 		/** @ Experemental ! (tabs) */
 		if( is_array($this->args['callback']) && !empty($this->args['tab_sections']) ){
 			if (!empty($_GET['tab'])){
@@ -177,17 +196,24 @@ class WP_Admin_Page
 			call_user_func($this->args['callback']);
 		}
 	}
-	function side_render(){
+
+	function side_render()
+	{
 		do_meta_boxes($this->screen,'side',null);
 	}
-	function normal_render(){
+
+	function normal_render()
+	{
 		do_meta_boxes($this->screen,'normal',null);
 	}
-	function advanced_render(){
+
+	function advanced_render()
+	{
 		do_meta_boxes($this->screen,'advanced',null);
 	}
 
-	function footer_scripts(){
+	function footer_scripts()
+	{
 
 		echo "<script> jQuery(document).ready(function($){ postboxes.add_postbox_toggles(pagenow); });</script>";
 		if( !empty($this->args['tab_sections']) ):
@@ -232,7 +258,8 @@ class WP_Admin_Page
 	 * $pageslug . _form_action
 	 * $pageslug . _form_method
 	 */
-	function render_page(){
+	function render_page()
+	{
 		?>
 
 		<div class="wrap">
@@ -324,17 +351,19 @@ class WP_Admin_Page
 	/**
 	 * Register page settings
 	 */
-	function register_option_page(){
-
+	function register_option_page()
+	{
 		register_setting( $this->page, $this->page, $this->args['validate'] );
 	}
+
 	/**
 	 * Validate registred options
 	 *
 	 * @param  _POST $inputs post data for update
 	 * @return array $inputs filtred data for save
 	 */
-	function validate_options( $inputs ){
+	function validate_options( $inputs )
+	{
 		// $debug = array();
 		// $debug['before'] = $inputs;
 		$inputs = array_map_recursive( 'sanitize_text_field', $inputs );
