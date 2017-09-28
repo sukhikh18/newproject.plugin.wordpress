@@ -1,14 +1,16 @@
 <?php
 
 /**
- * Class Name: WPAdminPageRender
- * Class URI: https://github.com/nikolays93/classes.git
+ * Class Name: WP_Admin_Page
+ * Class URI: https://github.com/nikolays93/WPAdminPage
  * Description: Create a new custom admin page.
- * Version: 2.0
+ * Version: 2.2
  * Author: NikolayS93
  * Author URI: https://vk.com/nikolays_93
  * License: GNU General Public License v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * @todo  : add method for tab_sections ( add tab section )
  */
 
 if ( !function_exists('array_filter_recursive') ) {
@@ -32,48 +34,40 @@ if ( !function_exists('array_map_recursive') ) {
 	}
 }
 
-if( class_exists('WPAdminPageRender') )
-	return;
-
-class WPAdminPageRender
+if( ! class_exists('WP_Admin_Page') ) :
+class WP_Admin_Page
 {
-	const ver = '2.0';
-
 	public $page = '';
 	public $screen = '';
-	public $option_name = '';
-	public $tab_sections = array();
 
-	protected $args = array(
-		'parent'      => 'options-general.php',
-		'title'       => '',
-		'menu'        => 'Test page',
-		'permissions' => 'manage_options',
-		'tab_sections'=> null,
-		);
-	protected $page_content_cb = '';
-	protected $page_valid_cb = '';
-
+	protected $args;
 	protected $metaboxes = array();
+	protected $tab_sections = array();
 
-	function __construct( $page_slug, $args, $page_content_cb, $option_name = false, $valid_cb = false ){
+	function __construct() {}
+	function set_args( $page_slug, $args ){
 		// slug required
 		if( !$page_slug )
 			wp_die( 'You have false slug in admin page class', 'Slug is false or empty' );
 
 		$this->page = $page_slug;
-		if( is_array( $args ) )
-			$this->args = array_merge( $this->args, $args );
+		$this->args = wp_parse_args( $args, array(
+			'parent'      => 'options-general.php',
+			'title'       => '',
+			'menu'        => 'New Modern Page',
+			'callback'    => array($this, 'not_set_callback'),
+			'validate'    => array($this, 'validate_options'),
+			'permissions' => 'manage_options',
+			'tab_sections'=> null,
+			'columns'     => 1,
+			) );
 
-		if(!empty($this->args['tab_sections']))
-			$this->tab_sections = $this->args['tab_sections'];
-
-		$this->page_content_cb = $page_content_cb;
-		$this->option_name = ( $option_name ) ? $option_name : $this->page;
-		$this->page_valid_cb = ($valid_cb) ? $valid_cb : array($this, 'validate_options');
-
-		add_action('admin_menu', array($this,'add_page'));
+		add_action('admin_menu', array($this,'_add_page'));
 		add_action('admin_init', array($this,'register_option_page'));
+	}
+
+	function not_set_callback() {
+		echo "Callback param not defined! @see more https://github.com/nikolays93/WPAdminPage";
 	}
 
 	/**
@@ -81,7 +75,7 @@ class WPAdminPageRender
 	 *
 	 * @see wordpress codex : add_submenu_page()
 	 */
-	function add_page(){
+	function _add_page(){
 		$this->screen = add_submenu_page(
 			$this->args['parent'],
 			$this->args['title'],
@@ -130,8 +124,10 @@ class WPAdminPageRender
 		do_action('add_meta_boxes_'.$this->screen, null);
 		do_action('add_meta_boxes', $this->screen, null);
 
-		$columns = apply_filters( $this->page . '_columns', 1 );
-		add_screen_option('layout_columns', array('max' => $columns, 'default' => $columns) );
+		add_screen_option('layout_columns', array(
+			'max' => $this->args['columns'],
+			'default' => $this->args['columns'])
+		);
 
 		// Enqueue WordPress' script for handling the metaboxes
 		wp_enqueue_script('postbox');
@@ -139,7 +135,7 @@ class WPAdminPageRender
 
 	function page_render(){
 		/** @ Experemental ! (tabs) */
-		if( is_array($this->page_content_cb) && !empty($this->args['tab_sections']) ){
+		if( is_array($this->args['callback']) && !empty($this->args['tab_sections']) ){
 			if (!empty($_GET['tab'])){
 				$current = $_GET['tab'];
 			}
@@ -155,7 +151,7 @@ class WPAdminPageRender
 			}
 			echo '</h2>';
 
-			foreach ($this->page_content_cb as $tab => $render_cb) {
+			foreach ($this->args['callback'] as $tab => $render_cb) {
 				$class = ($tab == $current) ? '' : ' class="hidden"';
 				echo "<div id='{$tab}'{$class}>";
 				call_user_func($render_cb);
@@ -163,7 +159,7 @@ class WPAdminPageRender
 			}
 		}
 		else {
-			call_user_func($this->page_content_cb);
+			call_user_func($this->args['callback']);
 		}
 	}
 	function side_render(){
@@ -248,7 +244,7 @@ class WPAdminPageRender
 							/**
 							 * $page_slug . _inside_page_content hook.
 							 *
-							 * @hooked array('WPAdminPageRender', 'page_render') - 10
+							 * @hooked array('WPAdminPage', 'page_render') - 10
 							 */
 							do_action( $this->page . '_inside_page_content');
 							?>
@@ -259,7 +255,7 @@ class WPAdminPageRender
 							/**
 							 * $page_slug . _inside_side_container hook.
 							 *
-							 * @hooked array('WPAdminPageRender', 'side_render') - 10
+							 * @hooked array('WPAdminPage', 'side_render') - 10
 							 */
 							do_action( $this->page . '_inside_side_container');
 							?>
@@ -270,7 +266,7 @@ class WPAdminPageRender
 							/**
 							 * $page_slug . _inside_normal_container hook.
 							 *
-							 * @hooked array('WPAdminPageRender', 'normal_render') - 10
+							 * @hooked array('WPAdminPage', 'normal_render') - 10
 							 */
 							do_action( $this->page . '_inside_normal_container');
 							?>
@@ -280,7 +276,7 @@ class WPAdminPageRender
 							/**
 							 * $page_slug . _inside_advanced_container hook.
 							 *
-							 * @hooked array('WPAdminPageRender', 'advanced_render') - 10
+							 * @hooked array('WPAdminPage', 'advanced_render') - 10
 							 */
 							do_action( $this->page . '_inside_advanced_container');
 							?>
@@ -295,7 +291,7 @@ class WPAdminPageRender
 					wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false );
 					// add hidden settings
 					if($action == 'options.php')
-						settings_fields( $this->option_name );
+						settings_fields( $this->page );
 				?>
 
 				<?php do_action( $this->page . '_after_form_inputs'); ?>
@@ -315,7 +311,7 @@ class WPAdminPageRender
 	 */
 	function register_option_page(){
 
-		register_setting( $this->option_name, $this->option_name, $this->page_valid_cb );
+		register_setting( $this->page, $this->page, $this->args['validate'] );
 	}
 	/**
 	 * Validate registred options
@@ -326,13 +322,12 @@ class WPAdminPageRender
 	function validate_options( $inputs ){
 		// $debug = array();
 		// $debug['before'] = $inputs;
-
 		$inputs = array_map_recursive( 'sanitize_text_field', $inputs );
 		$inputs = array_filter_recursive($inputs);
-
 		// $debug['after'] = $inputs;
 		// file_put_contents(__DIR__.'/valid.log', print_r($debug, 1));
 
 		return $inputs;
 	}
 }
+endif;
