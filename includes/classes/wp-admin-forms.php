@@ -5,7 +5,7 @@ class WP_Admin_Forms {
     protected $inputs, $args, $is_table, $active;
     protected $hiddens = array();
 
-    public function __construct($data = null, $active = null, $is_table = true, $args = null)
+    public function __construct($data = null, $is_table = true, $args = null)
     {
         if( ! is_array($data) )
             $data = array();
@@ -23,7 +23,7 @@ class WP_Admin_Forms {
         $this->fields = $data;
         $this->args = $args;
         $this->is_table = $is_table;
-        $this->active = $active;
+        $this->active = $this->_active();
     }
 
     public function render( $return=false )
@@ -74,13 +74,93 @@ class WP_Admin_Forms {
 
         $field = wp_parse_args( $field, $defaults );
 
-        if( ! in_array($field['type'], array('checkbox', 'select', 'radio')) )
+        if( ! in_array($field['type'], array('checkbox', 'select', 'radio')) && $field['default'] !== '' ) {
             $field['placeholder'] = $field['default'];
+        }
 
         $field['id'] = str_replace('][', '_', $field['id']);
         $entry = self::parse_entry($field, $active, $field['value']);
 
         return self::_input_template( $field, $entry, $for_table );
+    }
+
+    public function get_active()
+    {
+        return $this->active;
+    }
+
+    /**
+     * EXPEREMENTAL!
+     * Get ID => Default values from $render_data
+     * @param  array() $render_data
+     * @return array(array(ID=>default),ar..)
+     */
+    public static function defaults( $render_data ){
+        $defaults = array();
+        if( empty($render_data) ) {
+          return $defaults;
+        }
+
+        if( isset($render_data['id']) ) {
+            $render_data = array($render_data);
+        }
+
+        foreach ($render_data as $input) {
+            if(isset($input['default']) && $input['default']){
+                $input['id'] = str_replace('][', '_', $input['id']);
+                $defaults[$input['id']] = $input['default'];
+            }
+        }
+
+        return $defaults;
+    }
+
+    /**
+     * EXPEREMENTAL!
+     *
+     * @return array installed options
+     */
+    private function _active()
+    {
+        $option = $this->args['admin_page'];
+
+        /** get active values */
+        if( $this->args['postmeta'] ){
+            global $post;
+
+            if( !is_int($this->args['postmeta']) && !isset($post->ID) ) {
+                return false;
+            }
+
+            $post_id = ($this->args['postmeta'] === true) ? $post->ID : $this->args['postmeta'];
+
+            $active = get_post_meta( $post_id, $option, true );
+        }
+        else {
+            $active = get_option( $option, array() );
+        }
+
+        /** if active not found */
+        if( ! is_array($active) || $active === array() ) {
+            return false;
+        }
+
+        /**
+         * @todo: add recursive handle
+         */
+        $result = array();
+        foreach ($active as $key => $value) {
+            if( is_array($value) ){
+                foreach ($value as $key2 => $value2) {
+                    $result[$key . '_' . $key2] = $value2;
+                }
+            }
+            else {
+                $result[$key] = $value;
+            }
+        }
+
+        return $result;
     }
 
     /******************************** Templates *******************************/
@@ -140,9 +220,16 @@ class WP_Admin_Forms {
     {
         $name         = 'name="' . esc_attr( $field['name'] ) . '"';
         $id           = 'id="' . esc_attr( $field['id'] ) . '"';
-        $class        = sizeof($field['input_class']) ?
-            ' ' . esc_attr( implode( ' ', $field['input_class'] ) ) : '';
-        $ph           = esc_attr( $field['placeholder'] );
+
+        $class = '';
+        if( is_array($field['input_class']) ) {
+            $class = esc_attr( implode( ' ', $field['input_class'] ) );
+        }
+        elseif( is_string($field['input_class']) ) {
+            $class = ' ' . esc_attr( $field['input_class'] );
+        }
+
+        $ph           = 'placeholder="' . esc_attr( $field['placeholder'] ) . '"';
 
         $custom_attributes = array();
         if ( ! empty( $field['custom_attributes'] ) && is_array( $field['custom_attributes'] ) ) {
@@ -263,6 +350,7 @@ class WP_Admin_Forms {
             'form_wrap'   => array('', ''),
             'label_tag'   => 'th',
             'hide_desc'   => false,
+            'postmeta'    => false,
         );
 
         if( $is_table )
@@ -357,6 +445,7 @@ class WP_Admin_Forms {
         return $fields;
     }
 }
+
 // public static function render_fieldset( $input, $entry, $is_table, $label = '' ){
 //     $result = '';
 
@@ -373,88 +462,3 @@ class WP_Admin_Forms {
 //     }
 //     return $result;
 //   }
-
-  // /**
-  //  * EXPEREMENTAL!
-  //  * Get ID => Default values from $render_data
-  //  * @param  array() $render_data
-  //  * @return array(array(ID=>default),ar..)
-  //  */
-  // public static function defaults( $render_data ){
-  //   $defaults = array();
-  //   if(empty($render_data))
-  //     return $defaults;
-
-  //   if( isset($render_data['id']) )
-  //       $render_data = array($render_data);
-
-  //   foreach ($render_data as $input) {
-  //     if(isset($input['default']) && $input['default']){
-  //       $input['id'] = str_replace('][', '_', $input['id']);
-  //       $defaults[$input['id']] = $input['default'];
-  //     }
-  //   }
-
-  //   return $defaults;
-  // }
-
-  // /**
-  //  * @todo: add recursive handle
-  //  *
-  //  * @param  string   $option_name
-  //  * @param  string   $sub_name         $option_name[$sub_name]
-  //  * @param  boolean  $is_admin_options recursive split value array key with main array
-  //  * @param  int|bool $postmeta         int = post_id for post meta, true = get post_id from global post
-  //  * @return array                      installed options
-  //  */
-  // public static function active($option, $sub_name = false, $is_admin_options = false, $postmeta = false){
-
-  //   global $post;
-
-  //   /** get active values */
-  //   if( is_string($option) ){
-  //     if( $postmeta ){
-  //       if( !is_int($postmeta) && !isset($post->ID) )
-  //         return false;
-
-  //       $post_id = ($postmeta === true) ? $post->ID : $postmeta;
-
-  //       $active = get_post_meta( $post_id, $option, true );
-  //     }
-  //     else {
-  //       $active = get_option( $option, array() );
-  //     }
-  //   }
-  //   else {
-  //     $active = $option;
-  //   }
-
-  //   /** get subvalue */
-  //   if( $sub_name && isset($active[$sub_name]) && is_array($active[$sub_name]) )
-  //     $active = $active[$sub_name];
-  //   elseif( $sub_name && !isset($active[$sub_name]) )
-  //     return false;
-
-  //   /** if active not found */
-  //   if( !isset($active) || !is_array($active) )
-  //       return false;
-
-  //   /** sanitize admin values */
-  //   if( $is_admin_options === true ){
-  //     $result = array();
-  //     foreach ($active as $key => $value) {
-  //       if( is_array($value) ){
-  //         foreach ($value as $key2 => $value2) {
-  //           $result[$key . '_' . $key2] = $value2;
-  //         }
-  //       }
-  //       else {
-  //         $result[$key] = $value;
-  //       }
-  //     }
-
-  //     return $result;
-  //   }
-
-  //   return $active;
-  // }
