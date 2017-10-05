@@ -46,11 +46,18 @@ class PLUGINNAME
     }
 
     private static function include_required_classes(){
-        // Classes
-        require_once PLUGINNAME_DIR . '/includes/classes/wp-list-table.php';
-        require_once PLUGINNAME_DIR . '/includes/classes/wp-admin-page.php';
-        require_once PLUGINNAME_DIR . '/includes/classes/wp-admin-forms.php';
-        require_once PLUGINNAME_DIR . '/includes/classes/wp-post-boxes.php';
+        $classes = array(
+            'Example_List_Table' => 'wp-list-table.php',
+            'WP_Admin_Page'      => 'wp-admin-page.php',
+            'WP_Admin_Forms'     => 'wp-admin-forms.php',
+            'WP_Post_Boxes'      => 'wp-post-boxes.php',
+            );
+
+        foreach ($classes as $classname => $dir) {
+            if( ! class_exists($classname) ) {
+                require_once PLUGINNAME_DIR . '/includes/classes/' . $dir;
+            }
+        }
 
         // includes
         require_once PLUGINNAME_DIR . '/includes/register-post_type.php';

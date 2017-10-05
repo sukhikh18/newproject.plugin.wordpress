@@ -83,7 +83,7 @@ class PLUGINNAME_List_Page
                 ),
             );
 
-        $form = new WP_Admin_Forms( $data, $active = null, $is_table = true, $args = array(
+        $form = new WP_Admin_Forms( $data, $is_table = true, $args = array(
             // Defaults:
             // 'admin_page'  => true,
             // 'item_wrap'   => array('<p>', '</p>'),

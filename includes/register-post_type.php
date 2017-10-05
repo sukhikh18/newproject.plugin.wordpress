@@ -60,8 +60,9 @@ function test_callback() {
 
     $count = array( '_count' => get_post_meta( $post->ID, '_count', true ) );
 
-    $form = new WP_Admin_Forms( $data, $count, $is_table = true, $args = array(
+    $form = new WP_Admin_Forms( $data, $is_table = true, $args = array(
             'admin_page'  => false,
+            'postmeta'    => true,
             // 'item_wrap'   => array('<p>', '</p>'),
             // 'form_wrap'   => array('', ''),
             // 'label_tag'   => 'th',
