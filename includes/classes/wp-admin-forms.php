@@ -128,13 +128,14 @@ class WP_Admin_Forms {
         if( $this->args['postmeta'] ){
             global $post;
 
-            if( !is_int($this->args['postmeta']) && !isset($post->ID) ) {
+            if( ! $post instanceof WP_Post ) {
                 return false;
             }
 
-            $post_id = ($this->args['postmeta'] === true) ? $post->ID : $this->args['postmeta'];
-
-            $active = get_post_meta( $post_id, $option, true );
+            $active = array();
+            foreach ($this->fields as $field) {
+                $active[ $field['id'] ] = get_post_meta( $post->ID, $field['id'], true );
+            }
         }
         else {
             $active = get_option( $option, array() );
@@ -294,8 +295,9 @@ class WP_Admin_Forms {
                 if ( ! empty( $field['options'] ) ) {
                     $input .= $label;
 
-                    if( isset($field['value']) && $field['value']!==false && $field['value']!==NULL )
-                        $entry = $field['value'];
+                    // if( $field['value'] || $field['value'] === '' ) {
+                    //     $entry = $field['value'];
+                    // }
 
                     foreach ( $field['options'] as $option_key => $option_text ) {
                         if ( '' === $option_key ) {

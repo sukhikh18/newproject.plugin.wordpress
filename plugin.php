@@ -3,7 +3,7 @@
 Plugin Name: Новый плагин
 Plugin URI:
 Description:
-Version: 0.0
+Version: 0.1
 Author: NikolayS93
 Author URI: https://vk.com/nikolays_93
 Author EMAIL: nikolayS93@ya.ru

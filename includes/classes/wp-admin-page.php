@@ -61,6 +61,7 @@ class WP_Admin_Page
 			'permissions' => 'manage_options',
 			'tab_sections'=> null,
 			'columns'     => 1,
+			'icon_url'    => '',
 			) );
 
 		add_action('admin_menu', array($this,'_add_page'));
@@ -124,7 +125,7 @@ class WP_Admin_Page
 				$this->args['permissions'],
 				$this->page,
 				array($this,'render_page'),
-				$icon_url = '',
+				$this->args['icon_url'],
 				$this->args['menu_pos']
 				);
 		}
