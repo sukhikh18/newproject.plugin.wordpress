@@ -20,37 +20,25 @@ register_activation_hook( __FILE__, array( 'PLUGINNAME', 'activate' ) );
 // register_deactivation_hook( __FILE__, array( 'PLUGINNAME', 'deactivate' ) );
 register_uninstall_hook( __FILE__, array( 'PLUGINNAME', 'uninstall' ) );
 
-add_action( 'plugins_loaded', array('PLUGINNAME', 'init'), 10 );
-class PLUGINNAME
-{
+add_action( 'plugins_loaded', array('PLUGINNAME', 'get_instance'), 10 );
+class PLUGINNAME {
     const SETTINGS = __CLASS__;
 
-    public static $settings = array();
+    private $settings = array();
+    private static $_instance = null;
+    private function __construct() {}
+    private function __clone() {}
 
-    static function activate()
+    static function activate() { add_option( self::SETTINGS, array() ); }
+    static function uninstall() { delete_option(self::SETTINGS); }
+
+    private static function include_required_classes()
     {
-        global $wpdb;
-
-        add_option( self::SETTINGS, array() );
-    }
-
-    static function uninstall()
-    {
-        delete_option(self::SETTINGS);
-    }
-
-    public static function init()
-    {
-        self::$settings = get_option( self::SETTINGS, array() );
-        self::include_required_classes();
-    }
-
-    private static function include_required_classes(){
         $classes = array(
-            'Example_List_Table' => 'wp-list-table.php',
+            // 'Example_List_Table' => 'wp-list-table.php',
             'WP_Admin_Page'      => 'wp-admin-page.php',
             'WP_Admin_Forms'     => 'wp-admin-forms.php',
-            'WP_Post_Boxes'      => 'wp-post-boxes.php',
+            // 'WP_Post_Boxes'      => 'wp-post-boxes.php',
             );
 
         foreach ($classes as $classname => $dir) {
@@ -63,5 +51,22 @@ class PLUGINNAME
         require_once PLUGINNAME_DIR . '/includes/register-post_type.php';
         require_once PLUGINNAME_DIR . '/includes/admin-list-page.php';
         // require_once PLUGINNAME_DIR . '/includes/admin-edit-page.php';
+    }
+
+    public static function get_instance()
+    {
+        if( ! self::$_instance ) {
+            self::include_required_classes();
+            self::$settings = get_option( self::SETTINGS, array() );
+
+            self::$_instance = new self();
+        }
+
+        return self::$_instance;
+    }
+
+    public function get( $prop_name )
+    {
+        return isset( self::$settings[ $prop_name ] ) ? self::$settings[ $prop_name ] : false;
     }
 }
