@@ -92,12 +92,12 @@ class Example_List_Table extends WP_List_Table {
     {
         $columns = array(
             'cb'       => '<input type="checkbox" />',
-            'post_title' => __( 'Title' ),
-            '_count'    => __( 'Click Count' ),
-            '_selector' => __( 'Selector' ),
-            '_theme'    => __( 'Design' ),
-            'post_author'   => __( 'Author' ),
-            'post_date'     => __( 'Date' ),
+            'post_title' => 'Title',
+            '_count'    => 'Click Count',
+            '_selector' => 'Selector',
+            '_theme'    => 'Design',
+            'post_author'   => 'Author',
+            'post_date'     => 'Date',
             );
 
         return $columns;

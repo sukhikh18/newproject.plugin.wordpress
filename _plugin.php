@@ -24,7 +24,7 @@ add_action( 'plugins_loaded', array('PLUGINNAME', 'get_instance'), 10 );
 class PLUGINNAME {
     const SETTINGS = __CLASS__;
 
-    private $settings = array();
+    private static $settings = array();
     private static $_instance = null;
     private function __construct() {}
     private function __clone() {}
@@ -35,10 +35,10 @@ class PLUGINNAME {
     private static function include_required_classes()
     {
         $classes = array(
-            // 'Example_List_Table' => 'wp-list-table.php',
+            'Example_List_Table' => 'wp-list-table.php',
             'WP_Admin_Page'      => 'wp-admin-page.php',
             'WP_Admin_Forms'     => 'wp-admin-forms.php',
-            // 'WP_Post_Boxes'      => 'wp-post-boxes.php',
+            'WP_Post_Boxes'      => 'wp-post-boxes.php',
             );
 
         foreach ($classes as $classname => $dir) {
@@ -49,13 +49,13 @@ class PLUGINNAME {
 
         // includes
         require_once PLUGINNAME_DIR . '/includes/register-post_type.php';
-        require_once PLUGINNAME_DIR . '/includes/admin-list-page.php';
-        // require_once PLUGINNAME_DIR . '/includes/admin-edit-page.php';
+        require_once PLUGINNAME_DIR . '/includes/admin-page.php';
     }
 
     public static function get_instance()
     {
         if( ! self::$_instance ) {
+            load_plugin_textdomain( '_plugin', false, PLUGINNAME_DIR . '/languages/' );
             self::include_required_classes();
             self::$settings = get_option( self::SETTINGS, array() );
 

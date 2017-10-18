@@ -5,7 +5,7 @@ function register_PLUGINNAME_types(){
     register_post_type(PLUGINNAME::SETTINGS, array(
         'label'  => null,
         'labels' => array(
-            'name'               => 'Запись', // основное название для типа записи
+            'name'               => __('Post'), // основное название для типа записи
             'singular_name'      => 'Запись', // название для одной записи этого типа
             'add_new'            => 'Добавить Запись', // для добавления новой записи
             'add_new_item'       => 'Добавление Записи', // заголовка у вновь создаваемой записи в админ-панели.
