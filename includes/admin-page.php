@@ -16,10 +16,19 @@ class PLUGINNAME_List_Page
             'columns'     => 2,
             ) );
 
+        $page->set_assets( array($this, '_assets') );
+
         $page->add_metabox( 'metabox1', 'metabox1', array($this, 'metabox1_callback'), $position = 'side');
         $page->add_metabox( 'metabox2', 'metabox2', array($this, 'metabox2_callback'), $position = 'side');
         $page->set_metaboxes();
     }
+
+    function _assets()
+    {
+        // wp_enqueue_style();
+        // wp_enqueue_script();
+    }
+
     /**
      * Основное содержимое страницы
      *

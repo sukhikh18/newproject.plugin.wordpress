@@ -60,7 +60,7 @@ class WP_Admin_Page
 
 	public function set_assets( $callback )
 	{
-		if( $_GET['page'] == $this->page ) {
+		if( isset($_GET['page']) && $_GET['page'] == $this->page ) {
 			add_action( 'admin_enqueue_scripts', $callback );
 		}
 	}
