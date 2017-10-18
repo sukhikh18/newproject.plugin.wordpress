@@ -17,8 +17,8 @@ class WP_Admin_Forms {
             $data = array($data);
 
         $args = self::parse_defaults($args, $is_table);
-        if( $args['admin_page'] )
-            $data = self::admin_page_options( $data, $args['admin_page'] );
+        if( $args['admin_page'] || $args['sub_name'] )
+            $data = self::admin_page_options( $data, $args['admin_page'], $args['sub_name'] );
 
         $this->fields = $data;
         $this->args = $args;
@@ -122,9 +122,6 @@ class WP_Admin_Forms {
      */
     private function _active()
     {
-        $option = $this->args['admin_page'];
-
-        /** get active values */
         if( $this->args['postmeta'] ){
             global $post;
 
@@ -133,12 +130,21 @@ class WP_Admin_Forms {
             }
 
             $active = array();
-            foreach ($this->fields as $field) {
-                $active[ $field['id'] ] = get_post_meta( $post->ID, $field['id'], true );
+            if( $sub_name = $this->args['sub_name'] ) {
+                $active = get_post_meta( $post->ID, $sub_name, true );
+            }
+            else {
+                foreach ($this->fields as $field) {
+                    $active[ $field['id'] ] = get_post_meta( $post->ID, $field['id'], true );
+                }
             }
         }
         else {
-            $active = get_option( $option, array() );
+            $active = get_option( $this->args['admin_page'], array() );
+
+            if( $sub_name = $this->args['sub_name'] ) {
+                $active = isset($active[ $sub_name ]) ? $active[ $sub_name ] : false;
+            }
         }
 
         /** if active not found */
@@ -219,8 +225,8 @@ class WP_Admin_Forms {
 
     private static function _input_template( $field, $entry, $for_table = false )
     {
-        $name         = 'name="' . esc_attr( $field['name'] ) . '"';
-        $id           = 'id="' . esc_attr( $field['id'] ) . '"';
+        $name = 'name="' . esc_attr( $field['name'] ) . '"';
+        $id   = 'id="' . esc_attr( $field['id'] ) . '"';
 
         $class = '';
         if( is_array($field['input_class']) ) {
@@ -353,6 +359,7 @@ class WP_Admin_Forms {
             'label_tag'   => 'th',
             'hide_desc'   => false,
             'postmeta'    => false,
+            'sub_name'    => '',
         );
 
         if( $is_table )
@@ -429,19 +436,25 @@ class WP_Admin_Forms {
         }
     }
 
-    private static function admin_page_options( $fields, $option_name )
+    private static function admin_page_options( $fields, $option_name, $sub_name = false )
     {
         foreach ($fields as &$field) {
-          if ( ! isset($field['id']) && ! isset($field['name']) )
-            continue;
+            if ( ! isset($field['id']) && ! isset($field['name']) )
+                continue;
 
-        if( isset($field['name']) )
-            $field['name'] = "{$option_name}[{$field['name']}]";
-        else
-            $field['name'] = "{$option_name}[{$field['id']}]";
+            if( $sub_name ) {
+                $option_name .= ( $option_name ) ? "[{$sub_name}]" : $sub_name;
+            }
 
-        if( !isset($field['check_active']) )
-            $field['check_active'] = 'id';
+            if( $option_name ) {
+                if( isset($field['name']) )
+                    $field['name'] = "{$option_name}[{$field['name']}]";
+                else
+                    $field['name'] = "{$option_name}[{$field['id']}]";
+
+                if( !isset($field['check_active']) )
+                    $field['check_active'] = 'id';
+            }
         }
 
         return $fields;

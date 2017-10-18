@@ -13,27 +13,6 @@
  * @todo  : add method for tab_sections ( add tab section )
  */
 
-if ( !function_exists('array_filter_recursive') ) {
-	function array_filter_recursive($input){
-		foreach ($input as &$value) {
-			if ( is_array($value) )
-				$value = array_filter_recursive($value);
-		}
-
-		return array_filter($input);
-	}
-}
-
-if ( !function_exists('array_map_recursive') ) {
-	function array_map_recursive($callback, $array){
-		$func = function ($item) use (&$func, &$callback) {
-			return is_array($item) ? array_map($func, $item) : call_user_func($callback, $item);
-		};
-
-		return array_map($func, $array);
-	}
-}
-
 class WP_Admin_Page
 {
 	public $page = '';
@@ -43,14 +22,25 @@ class WP_Admin_Page
 	protected $metaboxes = array();
 	protected $tab_sections = array();
 
-	function __construct() {}
-	public function set_args( $page_slug, $args )
+	function __construct( $page_slug = false )
 	{
-		// slug required
-		if( !$page_slug )
-			wp_die( 'You have false slug in admin page class', 'Slug is false or empty' );
-
 		$this->page = $page_slug;
+	}
+
+	public function set_args( $deprecated, $args = array() )
+	{
+		if( $this->page ) {
+			$args = $deprecated;
+		}
+		else {
+			$this->page = $deprecated;
+		}
+
+		// slug required
+		if( ! $this->page ){
+			wp_die( 'You have false slug in admin page class in ' . __FILE__, 'Slug is false or empty' );
+		}
+
 		$this->args = wp_parse_args( $args, array(
 			'parent'      => 'options-general.php',
 			'title'       => '',
@@ -167,31 +157,65 @@ class WP_Admin_Page
 		wp_enqueue_script('postbox');
 	}
 
-	function page_render()
+	private static function tabs_render($sections, $callbacks)
 	{
-		/** @ Experemental ! (tabs) */
-		if( is_array($this->args['callback']) && !empty($this->args['tab_sections']) ){
-			if (!empty($_GET['tab'])){
-				$current = $_GET['tab'];
+		if ( ! empty( $_GET['tab'] ) ) {
+			$current = sanitize_text_field( $_GET['tab'] );
+		}
+		else {
+			reset( $callbacks );
+			$current = key( $callbacks );
+		}
+
+		echo '<style>#tabs.navs {padding-bottom: 0;margin: 0 0 8px;}</style>';
+		echo '<h2 id="tabs" class="navs nav-tab-wrapper">';
+
+		$host = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+		foreach ($sections as $tab_section) {
+			if( is_array($tab_section) ) {
+				$section_key = key($tab_section);
+				$section_value = current($tab_section);
 			}
 			else {
-				reset($this->tab_sections);
-				$current = key($this->tab_sections);
+				$section_key = key( $callbacks );
+				$section_value = $tab_section;
+				next( $callbacks );
 			}
 
-			echo '<style>#tabs.navs {padding-bottom: 0;margin: 0 0 8px;}</style><h2 id="tabs" class="navs nav-tab-wrapper">';
-			foreach ( $this->tab_sections as $tab => $tab_title) {
-				$class = ( $tab == $current ) ? ' nav-tab-active' : '';
-				echo "<a class='nav-tab{$class}' href='?page=".$this->page."&tab={$tab}' data-tab='{$tab}'>$tab_title</a>";
+			$get = array();
+			foreach ($_GET as $key => $value) {
+				if( $key !== 'tab' ) {
+					$get[] = $key . '=' . $value;
+				}
 			}
-			echo '</h2>';
+			$get[] = 'tab=' . $section_key;
 
-			foreach ($this->args['callback'] as $tab => $render_cb) {
-				$class = ($tab == $current) ? '' : ' class="hidden"';
-				echo "<div id='{$tab}'{$class}>";
-				call_user_func($render_cb);
-				echo "</div>";
-			}
+			$href = $host . '?' . implode('&', $get);
+			$class = $section_key == $current ? 'nav-tab nav-tab-active' : 'nav-tab';
+
+			echo sprintf('<a href="%s" class="%s" data-tab="%s">%s</a>',
+				esc_url( $href ),
+				$class,
+				esc_attr( $section_key ),
+				esc_html( $section_value )
+				);
+		}
+		echo '</h2>';
+
+		foreach ($callbacks as $tab => $render_cb) {
+			echo sprintf('<div id="%s" class="%s">',
+				esc_attr( $tab ),
+				$tab !== $current ? 'hidden' : ''
+				);
+			call_user_func($render_cb);
+			echo "</div>";
+		}
+	}
+
+	function page_render()
+	{
+		if( is_array($this->args['callback']) && !empty($this->args['tab_sections']) ){
+			self::tabs_render($this->args['tab_sections'], $this->args['callback']);
 		}
 		else {
 			call_user_func($this->args['callback']);
@@ -367,11 +391,30 @@ class WP_Admin_Page
 	{
 		// $debug = array();
 		// $debug['before'] = $inputs;
-		$inputs = array_map_recursive( 'sanitize_text_field', $inputs );
-		$inputs = array_filter_recursive($inputs);
+		$inputs = self::array_map_recursive( 'sanitize_text_field', $inputs );
+		$inputs = self::array_filter_recursive($inputs);
 		// $debug['after'] = $inputs;
 		// file_put_contents(__DIR__.'/valid.log', print_r($debug, 1));
 
 		return $inputs;
+	}
+
+	public static function array_filter_recursive($input)
+	{
+		foreach ($input as &$value) {
+			if ( is_array($value) )
+				$value = self::array_filter_recursive($value);
+		}
+
+		return array_filter($input);
+	}
+
+	public static function array_map_recursive($callback, $array)
+	{
+		$func = function ($item) use (&$func, &$callback) {
+			return is_array($item) ? array_map($func, $item) : call_user_func($callback, $item);
+		};
+
+		return array_map($func, $array);
 	}
 }
