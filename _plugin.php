@@ -56,8 +56,8 @@ class PLUGINNAME {
     {
         if( ! self::$_instance ) {
             load_plugin_textdomain( '_plugin', false, PLUGINNAME_DIR . '/languages/' );
-            self::include_required_classes();
             self::$settings = get_option( self::SETTINGS, array() );
+            self::include_required_classes();
 
             self::$_instance = new self();
         }
