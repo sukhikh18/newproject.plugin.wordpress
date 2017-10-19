@@ -1,6 +1,6 @@
 <?php
 
-class PLUGINNAME_List_Page
+class PLUGINNAME_Page
 {
     function __construct()
     {
@@ -106,4 +106,4 @@ class PLUGINNAME_List_Page
         echo '<div class="clear"></div>';
     }
 }
-new PLUGINNAME_List_Page();
+new PLUGINNAME_Page();
