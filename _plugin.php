@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
 
 define('PLUGINNAME_DIR', rtrim( plugin_dir_path( __FILE__ ), '/') );
+define('PLUGINNAME_URL', rtrim(plugins_url(basename(__DIR__)), '/') );
 
 register_activation_hook( __FILE__, array( 'PLUGINNAME', 'activate' ) );
 // register_deactivation_hook( __FILE__, array( 'PLUGINNAME', 'deactivate' ) );
