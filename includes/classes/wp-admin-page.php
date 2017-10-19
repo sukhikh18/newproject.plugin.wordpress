@@ -126,10 +126,10 @@ class WP_Admin_Page
 
 	function _metabox()
 	{
-		foreach ($this->metaboxes as $metabox) {
-			extract($metabox);
+		if( ! $this->screen ) return;
 
-			add_meta_box( $handle, $label, $render_cb, $this->screen, $position, $priority);
+		foreach ($this->metaboxes as $m) {
+			add_meta_box( $m['handle'], $m['label'], $m['render_cb'], $this->screen, $m['position'], $m['priority']);
 		}
 	}
 
