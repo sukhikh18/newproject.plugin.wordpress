@@ -1,5 +1,10 @@
 <?php
 
+namespace CDevelopers\PLUGINNAME;
+
+if ( ! defined( 'ABSPATH' ) )
+  exit; // disable direct access
+
 /**
  * Class Name: WP_Admin_Page
  * Class URI: https://github.com/nikolays93/WPAdminPage

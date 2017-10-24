@@ -1,48 +1,20 @@
 <?php
 
+namespace CDevelopers\PLUGINNAME;
+
+if ( ! defined( 'ABSPATH' ) )
+  exit; // disable direct access
+
 if ( ! class_exists( 'WP_List_Table' ) ) {
     require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
 
-class Example_List_Table extends WP_List_Table {
+class Example_List_Table extends \WP_List_Table {
 
     protected $columns = array();
 
     protected $fields = array();
-    protected $example_data = array(
-        array(
-            'ID'       => 1,
-            'title'    => '300',
-        ),
-        array(
-            'ID'       => 2,
-            'title'    => 'Eyes Wide Shut',
-        ),
-        array(
-            'ID'       => 3,
-            'title'    => 'Moulin Rouge!',
-        ),
-        array(
-            'ID'       => 4,
-            'title'    => 'Snow White',
-        ),
-        array(
-            'ID'       => 5,
-            'title'    => 'Super 8',
-        ),
-        array(
-            'ID'       => 6,
-            'title'    => 'The Fountain',
-        ),
-        array(
-            'ID'       => 7,
-            'title'    => 'Watchmen',
-        ),
-        array(
-            'ID'       => 8,
-            'title'    => '2001',
-        ),
-    );
+    protected $data = array();
 
     public function __construct()
     {
@@ -76,7 +48,7 @@ class Example_List_Table extends WP_List_Table {
                 }
             }
         }
-        $this->example_data = $res;
+        $this->data = $res;
         // $this->fields = $rows;
 
         // foreach ($rows as $row) {
@@ -87,17 +59,18 @@ class Example_List_Table extends WP_List_Table {
         //     }
         // }
     }
+
     /** THEAD */
     public function get_columns()
     {
         $columns = array(
             'cb'       => '<input type="checkbox" />',
-            'post_title' => 'Title',
-            '_count'    => 'Click Count',
-            '_selector' => 'Selector',
-            '_theme'    => 'Design',
-            'post_author'   => 'Author',
-            'post_date'     => 'Date',
+            'post_title' => __( 'Title', LANG ),
+            // '_count'    => 'Click Count',
+            // '_selector' => 'Selector',
+            // '_theme'    => 'Design',
+            'post_author'   => __( 'Author', LANG ),
+            'post_date'     => __( 'Date', LANG ),
             );
 
         return $columns;
@@ -156,9 +129,10 @@ class Example_List_Table extends WP_List_Table {
         );
     }
 
-    protected function column_rating( $item ) {
+    protected function column_post_author( $item ) {
+        $_user = get_user_by( 'id', $item['post_author'] );
 
-        return 'Yes';
+        return sprintf('<a href="%s">%s</a>', get_edit_user_link( $_user->ID ), $_user->data->user_nicename );
     }
 
     /****************************** Bulk Actions ******************************/
@@ -227,7 +201,7 @@ class Example_List_Table extends WP_List_Table {
 
         $this->process_bulk_action();
 
-        $data = $this->example_data;
+        $data = $this->data;
 
 
         usort( $data, array( $this, 'usort_reorder' ) );

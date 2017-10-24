@@ -1,5 +1,10 @@
 <?php
 
+namespace CDevelopers\PLUGINNAME;
+
+if ( ! defined( 'ABSPATH' ) )
+  exit; // disable direct access
+
 class WP_Post_Boxes {
 	const SECURITY = 'Secret';
 

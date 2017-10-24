@@ -1,5 +1,10 @@
 <?php
 
+namespace CDevelopers\PLUGINNAME;
+
+if ( ! defined( 'ABSPATH' ) )
+  exit; // disable direct access
+
 /**
  * @todo: add defaults
  */
