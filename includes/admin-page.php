@@ -1,6 +1,6 @@
 <?php
 
-namespace CDevelopers\PLUGINNAME;
+namespace CDevelopers\NSPACE;
 
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
@@ -9,11 +9,11 @@ class Admin_Page
 {
     function __construct()
     {
-        $page = new WP_Admin_Page();
-        $page->set_args( Utils::SETTINGS . '-List', array(
+        $page = new WP_Admin_Page( Utils::OPTION );
+        $page->set_args( array(
             'parent'      => false,
-            'title'       => '',
-            'menu'        => 'New Modern Page',
+            'title'       => __('Pluginname Title', PLUG_LANG),
+            'menu'        => __('New Plugin', PLUG_LANG),
             'callback'    => array($this, 'page_render'),
             // 'validate'    => array($this, 'validate_options'),
             'permissions' => 'manage_options',
@@ -42,7 +42,7 @@ class Admin_Page
      */
     function page_render() {
         $table = new Example_List_Table();
-        $table->set_fields( array('post_type' => Utils::SETTINGS) );
+        $table->set_fields( array('post_type' => Utils::OPTION) );
         $table->prepare_items();
         ?>
         <div style="background:#ececec;border:1px solid #ccc;padding:0 10px;margin-top:5px;border-radius:5px;">
@@ -65,7 +65,7 @@ class Admin_Page
      *     must be public for the WordPress
      */
     function metabox1_callback() {
-        print_r( Utils::_get( 'all' ) );
+        print_r( Utils::get( 'all' ) );
     }
 
     function metabox2_callback() {

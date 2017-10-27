@@ -1,13 +1,13 @@
 <?php
 
-namespace CDevelopers\PLUGINNAME;
+namespace CDevelopers\NSPACE;
 
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
 
 add_action('init', __NAMESPACE__ . '\register_PLUGINNAME_types');
 function register_PLUGINNAME_types(){
-    register_post_type(Utils::SETTINGS, array(
+    register_post_type(Utils::OPTION, array(
         'label'  => null,
         'labels' => array(
             'name'               => __('Post'), // основное название для типа записи
@@ -47,7 +47,7 @@ function register_PLUGINNAME_types(){
     ) );
 }
 
-$mb = new WP_Post_Boxes( array( Utils::SETTINGS ) );
+$mb = new WP_Post_Boxes( array( Utils::OPTION ) );
 $mb->add_fields( '_count' );
 $mb->add_box( 'Test Name', __NAMESPACE__ . '\test_callback', $side = false );
 function test_callback() {

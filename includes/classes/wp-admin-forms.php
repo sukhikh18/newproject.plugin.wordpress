@@ -1,6 +1,6 @@
 <?php
 
-namespace CDevelopers\PLUGINNAME;
+namespace CDevelopers\NSPACE;
 
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
