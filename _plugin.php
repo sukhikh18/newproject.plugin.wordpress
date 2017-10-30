@@ -131,6 +131,8 @@ class Utils
         switch ( $path ) {
             default: $result .= '/' . $path;
         }
+
+        return $result;
     }
 
     /**
@@ -143,7 +145,7 @@ class Utils
 
         if( 'all' === $prop_name ) {
             if( is_array(self::$settings) && count(self::$settings) )
-                return $this->settings;
+                return self::$settings;
 
             return $default;
         }
