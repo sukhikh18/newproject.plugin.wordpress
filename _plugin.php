@@ -17,7 +17,7 @@ namespace CDevelopers\NSPACE;
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
 
-define('PLUG_LANG', 'PLUGINNAME');
+define('PLUG_LANG', basename(__FILE__, '.php'));
 
 class Utils
 {
@@ -33,16 +33,17 @@ class Utils
 
     private static function include_required_classes()
     {
+        $class_dir = self::get_plugin_dir('classes');
         $classes = array(
-            __NAMESPACE__ . '\Example_List_Table' => 'wp-list-table.php',
-            __NAMESPACE__ . '\WP_Admin_Page'      => 'wp-admin-page.php',
-            __NAMESPACE__ . '\WP_Admin_Forms'     => 'wp-admin-forms.php',
-            __NAMESPACE__ . '\WP_Post_Boxes'      => 'wp-post-boxes.php',
+            __NAMESPACE__ . '\Example_List_Table' => '/wp-list-table.php',
+            __NAMESPACE__ . '\WP_Admin_Page'      => $class_dir . '/wp-admin-page.php',
+            __NAMESPACE__ . '\WP_Admin_Forms'     => $class_dir . '/wp-admin-forms.php',
+            __NAMESPACE__ . '\WP_Post_Boxes'      => $class_dir . '/wp-post-boxes.php',
             );
 
         foreach ($classes as $classname => $path) {
             if( ! class_exists($classname) ) {
-                require_once self::get_plugin_dir('classes') . '/' . $path;
+                require_once $path;
             }
         }
 
@@ -85,7 +86,7 @@ class Utils
     /**
      * Загружаем файл если существует
      */
-    public static function load_file_if_exists( $file_array )
+    public static function load_file_if_exists( $file_array, $args )
     {
         $cant_be_loaded = __('The file %s can not be included', TS_LANG);
         if( is_array( $file_array ) ) {
@@ -153,10 +154,10 @@ class Utils
         return isset( self::$settings[ $prop_name ] ) ? self::$settings[ $prop_name ] : $default;
     }
 
-    public static function get_settings( $filename )
+    public static function get_settings( $filename, $args )
     {
 
-        return self::load_file_if_exists( self::get_plugin_dir('settings') . '/' . $filename );
+        return self::load_file_if_exists( self::get_plugin_dir('settings') . '/' . $filename, $args );
     }
 }
 
