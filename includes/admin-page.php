@@ -12,8 +12,8 @@ class Admin_Page
         $page = new WP_Admin_Page( Utils::OPTION );
         $page->set_args( array(
             'parent'      => false,
-            'title'       => __('Pluginname Title', PLUG_LANG),
-            'menu'        => __('New Plugin', PLUG_LANG),
+            'title'       => __('Pluginname Title', DOMAIN),
+            'menu'        => __('New Plugin', DOMAIN),
             'callback'    => array($this, 'page_render'),
             // 'validate'    => array($this, 'validate_options'),
             'permissions' => 'manage_options',

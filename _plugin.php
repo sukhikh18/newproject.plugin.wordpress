@@ -17,7 +17,7 @@ namespace CDevelopers\NSPACE;
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
 
-define('PLUG_LANG', basename(__FILE__, '.php'));
+const DOMAIN = '_plugin';
 
 class Utils
 {
@@ -58,7 +58,7 @@ class Utils
             return false;
         }
 
-        load_plugin_textdomain( PLUG_LANG, false, basename(__DIR__) . '/languages/' );
+        load_plugin_textdomain( DOMAIN, false, DOMAIN . '/languages/' );
         self::include_required_classes();
 
         self::$initialized = true;
@@ -88,7 +88,7 @@ class Utils
      */
     public static function load_file_if_exists( $file_array, $args )
     {
-        $cant_be_loaded = __('The file %s can not be included', TS_LANG);
+        $cant_be_loaded = __('The file %s can not be included', DOMAIN);
         if( is_array( $file_array ) ) {
             $result = array();
             foreach ( $file_array as $id => $path ) {

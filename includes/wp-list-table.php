@@ -65,12 +65,12 @@ class Example_List_Table extends \WP_List_Table {
     {
         $columns = array(
             'cb'       => '<input type="checkbox" />',
-            'post_title' => __( 'Title', LANG ),
+            'post_title' => __( 'Title', DOMAIN ),
             // '_count'    => 'Click Count',
             // '_selector' => 'Selector',
             // '_theme'    => 'Design',
-            'post_author'   => __( 'Author', LANG ),
-            'post_date'     => __( 'Date', LANG ),
+            'post_author'   => __( 'Author', DOMAIN ),
+            'post_date'     => __( 'Date', DOMAIN ),
             );
 
         return $columns;
