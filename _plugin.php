@@ -91,7 +91,7 @@ class Utils
     /**
      * Загружаем файл если существует
      */
-    public static function load_file_if_exists( $file_array, $args )
+    public static function load_file_if_exists( $file_array, $args = array() )
     {
         $cant_be_loaded = __('The file %s can not be included', DOMAIN);
         if( is_array( $file_array ) ) {
@@ -159,7 +159,7 @@ class Utils
         return isset( self::$settings[ $prop_name ] ) ? self::$settings[ $prop_name ] : $default;
     }
 
-    public static function get_settings( $filename, $args )
+    public static function get_settings( $filename, $args = array() )
     {
 
         return self::load_file_if_exists( self::get_plugin_dir('settings') . '/' . $filename, $args );
