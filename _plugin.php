@@ -78,9 +78,14 @@ class Utils
         $date = new \DateTime();
         $date_str = $date->format(\DateTime::W3C);
 
-        $handle = fopen(__DIR__ . "/debug.log", "a+");
-        fwrite($handle, "[{$date_str}] {$msg} ({$dir})\r\n");
-        fclose($handle);
+        if( $handle = @fopen(__DIR__ . "/debug.log", "a+") ) {
+            fwrite($handle, "[{$date_str}] {$msg} ({$dir})\r\n");
+            fclose($handle);
+        }
+        elseif (defined('WP_DEBUG_DISPLAY') && WP_DEBUG_DISPLAY) {
+            echo "Не удается получить доступ к файлу " . __DIR__ . "/debug.log";
+            echo "{$msg} ({$dir})";
+        }
     }
 
     /**
