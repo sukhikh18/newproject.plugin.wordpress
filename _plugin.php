@@ -33,23 +33,25 @@ class Utils
 
     private static function include_required_classes()
     {
-        $class_dir = self::get_plugin_dir('classes');
-        $classes = array(
-            __NAMESPACE__ . '\Example_List_Table' => '/wp-list-table.php',
-            __NAMESPACE__ . '\WP_Admin_Page'      => $class_dir . '/wp-admin-page.php',
-            __NAMESPACE__ . '\WP_Admin_Forms'     => $class_dir . '/wp-admin-forms.php',
-            __NAMESPACE__ . '\WP_Post_Boxes'      => $class_dir . '/wp-post-boxes.php',
-            );
+        $dir_include = self::get_plugin_dir('includes');
+        $dir_class = self::get_plugin_dir('classes');
 
-        foreach ($classes as $classname => $path) {
+        $classes = array(
+            __NAMESPACE__ . '\Example_List_Table' => $dir_include . '/wp-list-table.php',
+            __NAMESPACE__ . '\WP_Admin_Page'      => $dir_class . '/wp-admin-page.php',
+            __NAMESPACE__ . '\WP_Admin_Forms'     => $dir_class . '/wp-admin-forms.php',
+            __NAMESPACE__ . '\WP_Post_Boxes'      => $dir_class . '/wp-post-boxes.php',
+        );
+
+        foreach ($classes as $classname => $dir) {var_dump($classname);
             if( ! class_exists($classname) ) {
-                require_once $path;
+                self::load_file_if_exists( $dir );
             }
         }
 
         // includes
-        require_once __DIR__ . '/includes/register-post_type.php';
-        require_once __DIR__ . '/includes/admin-page.php';
+        self::load_file_if_exists( $dir_include . '/register-post-type.php' );
+        self::load_file_if_exists( $dir_include . '/admin-page.php' );
     }
 
     public static function initialize()
@@ -83,8 +85,9 @@ class Utils
             fclose($handle);
         }
         elseif (defined('WP_DEBUG_DISPLAY') && WP_DEBUG_DISPLAY) {
-            echo "Не удается получить доступ к файлу " . __DIR__ . "/debug.log";
-            echo "{$msg} ({$dir})";
+            echo sprintf( __('Can not have access the file %s (%s)', DOMAIN),
+                __DIR__ . "/debug.log",
+                $dir );
         }
     }
 

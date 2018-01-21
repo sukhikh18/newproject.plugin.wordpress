@@ -3,7 +3,7 @@
 namespace CDevelopers\NSPACE;
 
 if ( ! defined( 'ABSPATH' ) )
-  exit; // disable direct access
+    exit; // disable direct access
 
 class Admin_Page
 {
