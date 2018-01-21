@@ -43,7 +43,7 @@ class Utils
             __NAMESPACE__ . '\WP_Post_Boxes'      => $dir_class . '/wp-post-boxes.php',
         );
 
-        foreach ($classes as $classname => $dir) {var_dump($classname);
+        foreach ($classes as $classname => $dir) {
             if( ! class_exists($classname) ) {
                 self::load_file_if_exists( $dir );
             }
