@@ -94,7 +94,7 @@ class Utils
     /**
      * Загружаем файл если существует
      */
-    public static function load_file_if_exists( $file_array, $args = array() )
+    public static function load_file_if_exists( $file_array, $args = array(), $once = false, $reqire = false )
     {
         $cant_be_loaded = __('The file %s can not be included', DOMAIN);
         if( is_array( $file_array ) ) {
@@ -105,7 +105,10 @@ class Utils
                     continue;
                 }
 
-                $result[] = include_once( $path );
+                if( $reqire )
+                    $result[] = ( $once ) ? require_once( $path ) : require( $path );
+                else
+                    $result[] = ( $once ) ? include_once( $path ) : include( $path );
             }
         }
         else {
@@ -114,7 +117,10 @@ class Utils
                 return false;
             }
 
-            $result = include_once( $file_array );
+            if( $reqire )
+                $result = ( $once ) ? require_once( $file_array ) : require( $file_array );
+            else
+                $result = ( $once ) ? include_once( $file_array ) : include( $file_array );
         }
 
         return $result;
