@@ -6,8 +6,15 @@ if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
 
 /**
- * @todo: add defaults
+ * Class Name: WP_Admin_Forms
+ * Description: Render a custom admin forms.
+ * Version: 1.0.1
+ * Author: NikolayS93
+ * Author URI: https://vk.com/nikolays_93
+ * License: GNU General Public License v2 or later
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
+
 class WP_Admin_Forms {
     static $clear_value = false;
     protected $inputs, $args, $is_table, $active;
@@ -212,7 +219,7 @@ class WP_Admin_Forms {
         $template.= $desc;
 
         if( ! $this->is_table ){
-            $html[] = $template;
+            $html[] = '<section id="'.$field['id'].'-wrap">' . $template . '</section>';
         }
         elseif( $field['type'] == 'hidden' ){
             $this->hiddens[] = $input;
@@ -239,139 +246,135 @@ class WP_Admin_Forms {
         return implode("\n", $html);
     }
 
-    private static function _input_template( $field, $entry, $for_table = false )
+    static function get_attributes_text( $attributes )
     {
-        $name = 'name="' . esc_attr( $field['name'] ) . '"';
-        $id   = 'id="' . esc_attr( $field['id'] ) . '"';
-
-        $class = '';
-        if( is_array($field['input_class']) ) {
-            $class = esc_attr( implode( ' ', $field['input_class'] ) );
-        }
-        elseif( is_string($field['input_class']) ) {
-            $class = ' ' . esc_attr( $field['input_class'] );
+        $attribute_text = '';
+        foreach ($attributes as $attribute_key => $attribute) {
+            $attribute_text .= sprintf('%s="%s"', $attribute_key, $attribute);
         }
 
-        $ph           = 'placeholder="' . esc_attr( $field['placeholder'] ) . '"';
+        return $attribute_text;
+    }
 
-        $custom_attributes = array();
-        if ( ! empty( $field['custom_attributes'] ) && is_array( $field['custom_attributes'] ) ) {
-            foreach ( $field['custom_attributes'] as $attribute => $attribute_value ) {
-                $custom_attributes[] = esc_attr( $attribute ) . '="' . esc_attr( $attribute_value ) . '"';
+    static function get_select_options( $options, $entry = '' )
+    {
+        $result = '';
+        foreach ( $options as $key => $text ) {
+            if( is_string( $text ) ) {
+                $result .= sprintf('<option value="%s"%s>%s</option>',
+                    esc_attr( $key ),
+                    selected( $entry, $key, false ),
+                    esc_attr( $text ) );
+                $result .= "\n";
+            }
+            else {
+                $result .= sprinft('<optgroup label="%s">', $key);
+                $result .= "\n";
+
+                foreach ($text as $sub_key => $sub_text) {
+                    $result .= sprinft('<option value="%s"%s>%s</option>',
+                        esc_attr( $sub_key ),
+                        selected( $entry, $sub_key, false ),
+                        esc_attr( $sub_text ) );
+                    $result .= "\n";
+                }
+
+                $result .= '</optgroup>';
+                $result .= "\n";
             }
         }
-        $attrs = implode( ' ', $custom_attributes );
 
-        $maxlength = ( $field['maxlength'] ) ?
-            'maxlength="' . absint( $field['maxlength'] ) . '"' : '';
-        $autocomplete = ( $field['autocomplete'] ) ?
-            'autocomplete="' . esc_attr( $field['autocomplete'] ) . '"' : '';
+        return $result;
+    }
+
+    private static function _input_template( $field, $entry, $for_table = false )
+    {
+        $attributes = array();
+        $attributes['name'] = esc_attr( $field['name'] );
+        $attributes['id'] = esc_attr( $field['id'] );
+        $attributes['class'] = esc_attr( is_array($field['input_class']) ?
+            implode(' ', $field['input_class']) : $field['input_class'] );
+
+        if( $field['value'] )
+            $attributes['value'] = esc_attr( $field['value'] );
+
+        if( $field['placeholder'] )
+            $attributes['placeholder'] = esc_attr( $field['placeholder'] );
+
+        if( $field['maxlength'] )
+            $attributes['maxlength'] = absint( $field['maxlength'] );
+
+        if( $field['autocomplete'] )
+            $attributes['autocomplete'] = esc_attr( $field['autocomplete'] );
+
+        if ( ! empty( $field['custom_attributes'] ) && is_array( $field['custom_attributes'] ) ) {
+            foreach ( $field['custom_attributes'] as $attribute => $attribute_value ) {
+                $attributes[ esc_attr( $attribute ) ] = esc_attr( $attribute_value );
+            }
+        }
 
         $label = ( ! $for_table && $field['label'] ) ?
             "<label for='".esc_attr($field['id'])."'> {$field['label']} </label>" : '';
 
         $input = '';
-        switch ($field['type']) {
-            // @todo : add fieldset
-            case 'html' :
-                $input .= $field['value'];
-                break;
-            case 'textarea' :
-                $rows = empty( $field['custom_attributes']['rows'] ) ? ' rows="5"' : '';
-                $cols = empty( $field['custom_attributes']['cols'] ) ? ' cols="40"' : '';
+        switch ( $field['type'] ) {
+            case 'html':
+                $input .= $attributes['value'];
+            break;
+
+            case 'textarea':
+                if( !empty( $field['custom_attributes']['rows'] ) ) $attributes['rows'] = 5;
+                if( !empty( $field['custom_attributes']['cols'] ) ) $attributes['cols'] = 40;
 
                 $input .= $label;
-                $input .= "<textarea ";
-                $input .= "{$name} {$id}{$cols}{$rows} {$ph} {$attrs} {$autocomplete} {$maxlength}";
-                $input .= "class='input-text{$class}'>";
+                $input .= '<textarea ' . self::get_attributes_text( $attributes ) . '>';
                 $input .= esc_textarea( $entry );
                 $input .= '</textarea>';
-                break;
-            case 'checkbox' :
-                $val = $field['value'] ? $field['value'] : 1;
-                $checked = checked( $entry, true, false );
-                // if( $field['default'] ) {
-                //     if( ! $entry ) {
-                //         $checked = checked( in_array($entry, array('true', '1', 'on')), true, false );
-                //     }
-                //     $clear_value = 'false';
-                // }
+            break;
 
-
+            case 'checkbox':
+                if( ! $attributes['value'] ) $attributes['value'] = 'on';
+                $attributes['checked'] .= checked( $entry, true, false );
+                $attributes['type'] = esc_attr( $field['type'] );
+                $attributes['class'] .= ' input-checkbox';
 
                 // if $clear_value === false dont use defaults (couse default + empty value = true)
                 if( isset($clear_value) || false !== ($clear_value = self::$clear_value) ) {
-                    $input .= "<input type='hidden' {$name} value='{$clear_value}'>\n";
+                    $input .= sprinft('<input type="hidden" name="%s" value="%s">',
+                        $attributes['name'], $clear_value) . "\n";
                 }
 
-                $input .= "<input type='checkbox' {$name} {$id} {$attrs} value='{$val}'";
-                $input .= " class='input-checkbox{$class}' {$checked} />";
+                $input .= '<input ' . self::get_attributes_text( $attributes ) . '/>';
                 $input .= $label;
-                break;
-            case 'hidden' :
-            case 'password' :
-            case 'text' :
-            case 'email' :
-            case 'tel' :
-            case 'number' :
-                $type = sprintf('type="%s"', esc_attr( $field['type'] ));
-                $val = $field['value'] ? esc_attr( $field['value'] ) : esc_attr( $entry );
+            break;
 
-                $input .= $label;
-                $input .= "<input {$type} {$name} {$id} {$ph} {$maxlength} {$autocomplete}";
-                $input .= " class='input-text{$class}' value='{$val}' {$attrs} />";
-                break;
-            case 'select' :
-                $options = '';
-
+            case 'select':
                 if ( ! empty( $field['options'] ) ) {
-                    $input .= $label;
-
-                    // if( $field['value'] || $field['value'] === '' ) {
-                    //     $entry = $field['value'];
-                    // }
-
-                    foreach ( $field['options'] as $option_key => $option_text ) {
-                        if ( '' === $option_key ) {
-                            if ( empty( $field['placeholder'] ) )
-                                $field['placeholder'] = $option_text ?
-                                    $option_text : __( 'Choose an option' );
-
-                            // $custom_attributes[] = 'data-allow_clear="true"';
-                        }
-
-                        if( ! is_array( $option_text ) ){
-                            $options .= '<option value="' . esc_attr( $option_key ) . '" ' .
-                                selected( $entry, $option_key, false ) . '>' .
-                                esc_attr( $option_text ) . '</option>';
-                        }
-                        else {
-                            $options .= "<optgroup label='{$option_key}'>";
-                            foreach ($option_text as $sub_option_key => $sub_option_text) {
-                                $options .= '<option value="' . esc_attr( $sub_option_key ) . '" ' .
-                                    selected( $entry, $sub_option_key, false ) . '>' .
-                                    esc_attr( $sub_option_text ) . '</option>';
-                            }
-                            $options .= "</optgroup>";
-                        }
+                    if ( '' === current($field['options']) ) {
+                        if ( ! $attributes['placeholder'] )
+                            $attributes['placeholder'] = $text ? $text : __( 'Choose an option' );
                     }
-                    $input .= "<select {$name} {$id} class='select{$class}' {$attrs}";
-                    $input .= " {$autocomplete}>{$options}</select>";
+
+                    $input .= $label;
+                    $input .= '<select ' . self::get_attributes_text( $attributes ) . '>';
+                    $input .= self::get_select_options($field['options'], $entry);
+                    $input .= '</select>';
                 }
-                break;
-            // case 'radio' :
+            break;
 
-            //     $label_id = current( array_keys( $field['options'] ) );
+            // @todo:
+            case 'radio': break;
+            case 'fieldset': break;
 
-            //     if ( ! empty( $field['options'] ) ) {
-            //         foreach ( $field['options'] as $option_key => $option_text ) {
-            //             $field .= '<input type="radio" class="input-radio ' . esc_attr( implode( ' ', $field['input_class'] ) ) .'" value="' . esc_attr( $option_key ) . '" name="' . esc_attr( $key ) . '" id="' . esc_attr( $field['id'] ) . '_' . esc_attr( $option_key ) . '"' . checked( $value, $option_key, false ) . ' />';
-            //             $field .= '<label for="' . esc_attr( $field['id'] ) . '_' . esc_attr( $option_key ) . '" class="radio ' . implode( ' ', $field['label_class'] ) .'">' . $option_text . '</label>';
-            //         }
-            //     }
+            default:
+                $attributes['type'] = esc_attr( $field['type'] );
+                $attributes['value'] = $field['value'] ? esc_attr( $field['value'] ) : esc_attr( $entry );
+                $attributes['class'] .= ' input-' . $attributes['type'];
 
-            //     break;
-            }
+                $input .= $label;
+                $input .= '<input ' . self::get_attributes_text( $attributes ) . '/>';
+            break;
+        }
         return $input;
     }
 
@@ -486,20 +489,3 @@ class WP_Admin_Forms {
         return $fields;
     }
 }
-
-// public static function render_fieldset( $input, $entry, $is_table, $label = '' ){
-//     $result = '';
-
-//     // <legend>Работа со временем</legend>
-
-//     foreach ($input['fields'] as $field) {
-//       if( !isset($field['name']) )
-//         $field['name'] = _isset_empty($field['id']);
-
-//       $field['id'] = str_replace('][', '_', $field['id']);
-
-//       $f_name = self::get_function_name($field['type']);
-//       $result .= self::$f_name( $field, $entry, $is_table, $label );
-//     }
-//     return $result;
-//   }

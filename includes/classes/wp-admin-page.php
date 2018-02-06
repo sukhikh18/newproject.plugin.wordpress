@@ -13,8 +13,6 @@ if ( ! defined( 'ABSPATH' ) )
  * Author URI: https://vk.com/nikolays_93
  * License: GNU General Public License v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
- *
- * @todo  : add method for tab_sections ( add tab section )
  */
 
 class WP_Admin_Page
@@ -298,7 +296,6 @@ class WP_Admin_Page
 
 		<div class="wrap">
 
-			<?php screen_icon(); ?>
 			<h2> <?php echo esc_html($this->args['title']);?> </h2>
 
 			<?php do_action( $this->page . '_after_title'); ?>
