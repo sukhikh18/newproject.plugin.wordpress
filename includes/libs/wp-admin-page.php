@@ -28,7 +28,7 @@ class WP_Admin_Page
 
 	function __construct( $page_slug = false )
 	{
-		$this->page = $page_slug;
+		$this->page = sanitize_text_field( $page_slug );
 		add_action( 'admin_notices', array(__CLASS__, 'notice_tpl') );
 	}
 
@@ -276,19 +276,6 @@ class WP_Admin_Page
 
 	/**
 	 * View html on added page
-	 *
-	 * @has_hooks:
-	 * $pageslug . _after_title (default empty hook)
-	 * $pageslug . _before_form_inputs (default empty hook)
-	 * $pageslug . _inside_page_content
-	 * $pageslug . _inside_side_container
-	 * $pageslug . _inside_advanced_container
-	 * $pageslug . _after_form_inputs (default empty hook)
-	 * $pageslug . _after_page_wrap (default empty hook)
-	 *
-	 * @has_fiters
-	 * $pageslug . _form_action
-	 * $pageslug . _form_method
 	 */
 	function render_page()
 	{
