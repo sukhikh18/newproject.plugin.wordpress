@@ -297,7 +297,7 @@ class WP_Admin_Forms {
             implode(' ', $field['input_class']) : $field['input_class'] );
 
         if( $field['value'] )
-            $attributes['value'] = esc_attr( $field['value'] );
+            $attributes['value'] = ('html' == $field['type']) ? $field['value'] : esc_attr( $field['value'] );
 
         if( $field['placeholder'] )
             $attributes['placeholder'] = esc_attr( $field['placeholder'] );
