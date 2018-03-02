@@ -99,6 +99,7 @@ class Utils
             case 'includes': $dir .= '/includes'; break;
             case 'libs':     $dir .= '/includes/libs'; break;
             case 'settings': $dir .= '/includes/settings'; break;
+            default:         $dir .= $path;
         }
 
         return apply_filters( "get_{DOMAIN}_plugin_dir", $dir, $path );
