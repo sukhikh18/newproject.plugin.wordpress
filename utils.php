@@ -149,7 +149,7 @@ class Utils
     public static function set( $prop_name, $value = '', $autoload = null )
     {
         $option = self::get_option();
-        if( ! is_array($prop_name) ) $prop_name = array($prop_name, $value);
+        if( ! is_array($prop_name) ) $prop_name = array($prop_name => $value);
 
         foreach ($prop_name as $prop_key => $prop_value) {
             $option[ $prop_key ] = $prop_value;
