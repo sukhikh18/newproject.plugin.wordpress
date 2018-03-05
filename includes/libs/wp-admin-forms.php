@@ -365,7 +365,7 @@ class WP_Admin_Forms {
             case 'select':
                 if ( ! empty( $field['options'] ) ) {
                     if ( '' === current($field['options']) ) {
-                        if ( ! $attributes['placeholder'] )
+                        if ( empty($attributes['placeholder']) )
                             $attributes['placeholder'] = $text ? $text : __( 'Choose an option' );
                     }
 
