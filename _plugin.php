@@ -41,7 +41,8 @@ if ( ! defined( 'ABSPATH' ) )
 const PLUGIN_DIR = __DIR__;
 const DOMAIN = '_plugin';
 
-// Нужно подключить заранее для активации и деактивации плагина @see activate(), uninstall();
+// Нужно подключить заранее для подключения файлов @see include_required_files()
+// активации и деактивации плагина @see activate(), uninstall();
 require __DIR__ . '/utils.php';
 
 class Plugin
@@ -85,7 +86,7 @@ class Plugin
                 Utils::load_file_if_exists( $path );
             }
             else {
-                Utils::write_debug(__('Duplicate class ' . $classname, DOMAIN), __FILE__);
+                Utils::write_debug(sprintf( __('Duplicate class %s', DOMAIN), $classname ), __FILE__);
             }
         }
 
