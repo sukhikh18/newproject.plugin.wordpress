@@ -1,6 +1,6 @@
 <?php
 
-namespace CDevelopers\NSPACE;
+namespace NikolayS93\MediaBlocks;
 
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access

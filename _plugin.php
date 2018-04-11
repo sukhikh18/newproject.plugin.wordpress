@@ -60,8 +60,6 @@ class Plugin
 
         load_plugin_textdomain( DOMAIN, false, basename(PLUGIN_DIR) . '/languages/' );
         self::include_required_files();
-        self::_actions();
-        self::_filters();
 
         self::$initialized = true;
     }
@@ -71,34 +69,29 @@ class Plugin
      */
     private static function include_required_files()
     {
-        $include = Utils::get_plugin_dir('includes');
-        $libs    = Utils::get_plugin_dir('libs');
+        $plugin_dir = Utils::get_plugin_dir();
 
         $classes = array(
-            __NAMESPACE__ . '\WP_List_Table'  => $include . '/wp-list-table.php',
-            __NAMESPACE__ . '\WP_Admin_Page'  => $libs    . '/wp-admin-page.php',
-            __NAMESPACE__ . '\WP_Admin_Forms' => $libs    . '/wp-admin-forms.php',
-            // __NAMESPACE__ . '\WP_Post_Boxes'  => $libs    . '/wp-post-boxes.php',
+            __NAMESPACE__ . '\WP_List_Table'  => '/vendor/nikolays93/wp-list-table.php',
+            __NAMESPACE__ . '\WP_Admin_Page'  => '/vendor/nikolays93/wp-admin-page.php',
+            'NikolayS93\WPAdminForm\Version'  => '/vendor/nikolays93/WPAdminForm/init.php',
+            __NAMESPACE__ . '\WP_Post_Boxes'  => '/vendor/nikolays93/wp-post-boxes.php',
         );
 
         foreach ($classes as $classname => $path) {
+            $filename = $plugin_dir . $path;
             if( ! class_exists($classname) ) {
-                Utils::load_file_if_exists( $path );
-            }
-            else {
-                Utils::write_debug(sprintf( __('Duplicate class %s', DOMAIN), $classname ), __FILE__);
+                Utils::load_file_if_exists( $filename );
             }
         }
 
+        // Utils::load_file_if_exists( $plugin_dir . '/includes/actions.php' );
+        // Utils::load_file_if_exists( $plugin_dir . '/includes/filters.php' );
+
         // includes
-        Utils::load_file_if_exists( $include . '/admin-settings-page.php' );
+        Utils::load_file_if_exists( $plugin_dir . '/includes/admin-settings-page.php' );
     }
-
-    private static function _actions(){}
-    private static function _filters(){}
 }
-
-
 
 register_activation_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'activate' ) );
 register_uninstall_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'uninstall' ) );
