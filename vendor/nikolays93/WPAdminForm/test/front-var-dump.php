@@ -1,6 +1,6 @@
 <?php
 
-use NikolayS93\WPAdminForm\Form;
+use NikolayS93\WPAdminFormBeta\Form;
 
 add_action( 'get_footer', 'WPAdminFormTest' );
 function WPAdminFormTest() {

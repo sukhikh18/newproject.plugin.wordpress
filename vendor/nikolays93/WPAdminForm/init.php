@@ -11,12 +11,12 @@
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace NikolayS93\WPAdminForm;
+namespace NikolayS93\WPAdminFormBeta;
 
 if ( ! defined( 'ABSPATH' ) )
   exit; // With wordpress only
 
-if( !class_exists('NikolayS93\WPAdminForm\Version') ) {
+if( !class_exists('NikolayS93\WPAdminFormBeta\Version') ) {
     include_once __DIR__ . '/src/Version.php';
     include_once __DIR__ . '/src/Preset.php';
     include_once __DIR__ . '/src/Util.php';

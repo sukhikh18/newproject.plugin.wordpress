@@ -1,6 +1,6 @@
 <?php
 
-namespace NikolayS93\WPAdminForm;
+namespace NikolayS93\WPAdminFormBeta;
 
 class Field extends Form
 {
@@ -17,7 +17,7 @@ class Field extends Form
         $required = self::_get_required_string( $field );
         
         $template = self::_get_field_template($field, $input, $args, 
-            self::_get_description_string( $field ));
+            self::_get_description_string( $field, $args ));
 
         if( ! $args['is_table'] ){
             $html[] = sprintf('<section id="%1$s-wrap">%2$s</section>',
@@ -26,7 +26,7 @@ class Field extends Form
             );
         }
         elseif( 'hidden' === $field['type'] ){
-            $this->hiddens[] = $input;
+            parent::$hiddens[] = $input;
         }
         elseif( $field['type'] == 'html' ){
             $html[] = $args['form_wrap'][1];
@@ -77,14 +77,14 @@ class Field extends Form
         }
     }
 
-    private static function _get_description_string( $field )
+    private static function _get_description_string( $field, $args = array() )
     {
         $desc = '';
         if( $field['description'] ){
             /**
              * @todo: display hover
              */
-            if( isset($this->args['hide_desc']) && $this->args['hide_desc'] === true )
+            if( isset($args['hide_desc']) && $args['hide_desc'] === true )
                 $desc = "<div class='description' style='display: none;'>{$field['description']}</div>";
             else
                 $desc = "<span class='description'>{$field['description']}</span>";

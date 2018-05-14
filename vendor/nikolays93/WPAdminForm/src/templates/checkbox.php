@@ -1,6 +1,6 @@
 <?php
 
-namespace NikolayS93\WPAdminForm;
+namespace NikolayS93\WPAdminFormBeta;
 
 if( empty($attrs['value']) ) $attrs['value'] = 'on';
 if( empty($attrs['checked']) ) {
@@ -9,12 +9,13 @@ if( empty($attrs['checked']) ) {
 }
 
 $attrs['type'] = esc_attr( $field['type'] );
-$attrs['class'] .= ' input-checkbox';
+$attrs['class'] = 'input-checkbox';
 
-// if $clear_value === false dont use defaults (couse default + empty value = true)
-if( isset($clear_value) || false !== ($clear_value = self::$clear_value) ) {
+// if $args['clear'] === false dont use defaults (couse default + empty value = true)
+if( false !== $args['clear'] ) {
     $input .= sprintf('<input type="hidden" name="%s" value="%s">',
-        $attrs['name'], $clear_value) . "\n";
+        $attrs['name'],
+        $args['clear']) . "\n";
 }
 
 $input .= '<input ' . Util::get_attributes_text( $attrs ) . '/>';

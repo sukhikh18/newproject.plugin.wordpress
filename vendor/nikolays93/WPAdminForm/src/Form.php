@@ -1,17 +1,15 @@
 <?php
 
-namespace NikolayS93\WPAdminForm;
+namespace NikolayS93\WPAdminFormBeta;
 
 class Form extends Active
 {
-    // protected $inputs;
-
-    static $clear_value = false;
     protected $fields,
-              $args,
-              $hiddens = array();
+              $args;
 
-    public function __construct($data = null, $is_table = true, $args = array())
+    protected static $hiddens = array();
+
+    public function __construct($data = null, $args = array())
     {
         if( !is_array($data) )
             $data = array();
@@ -22,7 +20,7 @@ class Form extends Active
         if( !is_array($args) )
             $args = array();
 
-        $args = Preset::parse_args($args, $is_table);
+        $args = Preset::parse_args($args);
         if( $args['admin_page'] ) { // || $args['sub_name']
             foreach ($data as &$field) {
                 if ( ! isset($field['id']) && ! isset($field['name']) )
@@ -41,7 +39,6 @@ class Form extends Active
         }
 
         $this->fields = $data;
-        $args['is_table'] = $is_table;
         $this->args = $args;
     }
 
@@ -65,7 +62,8 @@ class Form extends Active
         }
         $html .= $this->args['form_wrap'][1];
 
-        $result = $html . "\n" . implode("\n", $this->hiddens);
+        $result = $html . "\n" . implode("\n", self::$hiddens);
+        self::$hiddens = array();
 
         echo $result;
     }

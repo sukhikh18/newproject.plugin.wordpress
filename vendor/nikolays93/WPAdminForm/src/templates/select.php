@@ -1,6 +1,6 @@
 <?php
 
-namespace NikolayS93\WPAdminForm;
+namespace NikolayS93\WPAdminFormBeta;
 
 if ( ! empty( $field['options'] ) ) {
     if ( '' === current($field['options']) ) {
@@ -9,7 +9,7 @@ if ( ! empty( $field['options'] ) ) {
     }
 
     $input .= $label[0];
-    $input .= '<select ' . Utils::get_attributes_text( $attrs ) . '>';
+    $input .= '<select ' . Util::get_attributes_text( $attrs ) . '>';
     $input .= Util::get_select_options($field['options'], $entry);
     $input .= '</select>';
     $input .= $label[1];

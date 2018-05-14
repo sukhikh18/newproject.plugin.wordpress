@@ -1,6 +1,6 @@
 <?php
 
-namespace NikolayS93\WPAdminForm;
+namespace NikolayS93\WPAdminFormBeta;
 
 /**
  * Plugin version

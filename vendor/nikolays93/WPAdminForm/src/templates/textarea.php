@@ -1,6 +1,6 @@
 <?php
 
-namespace NikolayS93\WPAdminForm;
+namespace NikolayS93\WPAdminFormBeta;
 
 if( !empty( $field['custom_attributes']['rows'] ) ) $attrs['rows'] = 5;
 if( !empty( $field['custom_attributes']['cols'] ) ) $attrs['cols'] = 40;

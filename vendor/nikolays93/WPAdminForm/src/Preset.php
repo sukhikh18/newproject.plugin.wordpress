@@ -1,6 +1,6 @@
 <?php
 
-namespace NikolayS93\WPAdminForm;
+namespace NikolayS93\WPAdminFormBeta;
 
 class Preset
 {
@@ -27,19 +27,22 @@ class Preset
     }
 
     // form
-    public static function parse_args($args, $is_table)
+    public static function parse_args($args)
     {
         $defaults = array(
-            'admin_page'  => true, // set true for auto detect
-            'item_wrap'   => array('<p>', '</p>'),
-            'form_wrap'   => array('', ''),
-            'label_tag'   => 'th',
-            'hide_desc'   => false,
-            'postmeta'    => false,
-            'sub_name'    => '',
+            'is_table'   => true,
+            'admin_page' => true, // set true for auto detect
+            'item_wrap'  => array('<p>', '</p>'),
+            'form_wrap'  => array('', ''),
+            'label_tag'  => 'th',
+            'hide_desc'  => false,
+            'postmeta'   => false,
+            'sub_name'   => '',
+            'clear'      => 0,
         );
 
-        if( $is_table )
+
+        if( $defaults['is_table'] )
             $defaults['form_wrap'] = array('<table class="table form-table"><tbody>', '</tbody></table>');
 
         if( !isset( $args['admin_page'] ) && !empty($_GET['page']) ) {
@@ -57,7 +60,7 @@ class Preset
         if( ! is_array($args['form_wrap']) )
             $args['form_wrap'] = array('', '');
 
-        if( false === $is_table )
+        if( false === $defaults['is_table'] )
             $args['label_tag'] = 'label';
 
         return $args;
