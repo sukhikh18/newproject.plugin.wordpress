@@ -72,10 +72,10 @@ class Plugin
         $plugin_dir = Utils::get_plugin_dir();
 
         $classes = array(
-            __NAMESPACE__ . '\WP_List_Table'  => '/vendor/nikolays93/wp-list-table.php',
-            __NAMESPACE__ . '\WP_Admin_Page'  => '/vendor/nikolays93/wp-admin-page.php',
-            'NikolayS93\WPAdminForm\Version'  => '/vendor/nikolays93/WPAdminForm/init.php',
-            __NAMESPACE__ . '\WP_Post_Boxes'  => '/vendor/nikolays93/wp-post-boxes.php',
+            __NAMESPACE__ . '\WP_Post_Boxes'     => '/vendor/nikolays93/wp-post-boxes.php',
+            __NAMESPACE__ . '\WP_List_Table'     => '/vendor/nikolays93/wp-list-table-framework.php',
+            'NikolayS93\WPAdminPageBeta\Version' => '/vendor/nikolays93/WPAdminPage/init.php',
+            'NikolayS93\WPAdminFormBeta\Version' => '/vendor/nikolays93/WPAdminForm/init.php',
         );
 
         foreach ($classes as $classname => $path) {
@@ -89,7 +89,7 @@ class Plugin
         // Utils::load_file_if_exists( $plugin_dir . '/includes/filters.php' );
 
         // includes
-        Utils::load_file_if_exists( $plugin_dir . '/includes/admin-settings-page.php' );
+        Utils::load_file_if_exists( $plugin_dir . '/includes/admin-menu-page.php' );
     }
 }
 
