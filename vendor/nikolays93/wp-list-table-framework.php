@@ -48,7 +48,7 @@ class WP_List_Table_Framework extends \WP_List_Table {
         return $this->columns;
     }
 
-    public function set_sortable_columns( $sortable )
+    public function set_sortable_columns( $sortable = array() )
     {
         $this->sortable = wp_parse_args( $sortable, array(
             'title'  => array( 'title', false ),
@@ -202,7 +202,7 @@ class WP_List_Table_Framework extends \WP_List_Table {
 
         $data = $this->values;
 
-        usort( $data, array( $this, 'usort_reorder' ) );
+        // usort( $data, array( $this, 'usort_reorder' ) );
 
         $current_page = $this->get_pagenum();
 
