@@ -71,20 +71,6 @@ class Plugin
     {
         $plugin_dir = Utils::get_plugin_dir();
 
-        $classes = array(
-            __NAMESPACE__ . '\WP_Post_Boxes'     => '/vendor/nikolays93/wp-post-boxes.php',
-            __NAMESPACE__ . '\WP_List_Table'     => '/vendor/nikolays93/wp-list-table-framework.php',
-            'NikolayS93\WPAdminPageBeta\Version' => '/vendor/nikolays93/WPAdminPage/init.php',
-            'NikolayS93\WPAdminFormBeta\Version' => '/vendor/nikolays93/WPAdminForm/init.php',
-        );
-
-        foreach ($classes as $classname => $path) {
-            $filename = $plugin_dir . $path;
-            if( ! class_exists($classname) ) {
-                Utils::load_file_if_exists( $filename );
-            }
-        }
-
         // Utils::load_file_if_exists( $plugin_dir . '/includes/actions.php' );
         // Utils::load_file_if_exists( $plugin_dir . '/includes/filters.php' );
 

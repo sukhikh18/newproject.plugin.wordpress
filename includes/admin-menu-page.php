@@ -4,6 +4,7 @@ namespace CDevelopers\NSPACE;
 
 use NikolayS93\WPAdminFormBeta\Form as Form;
 use NikolayS93\WPAdminPageBeta as AdminPage;
+use NikolayS93\WP_List_Table_Framework as Table;
 
 if ( ! defined( 'ABSPATH' ) )
     exit; // disable direct access
@@ -69,7 +70,7 @@ class AdminSettingsPage
      */
     function post_table_example()
     {
-        $table = new WP_List_Table_Framework();
+        $table = new Table();
         $table->set_columns();
         // @todo repair it
         // $table->set_sortable_columns();
