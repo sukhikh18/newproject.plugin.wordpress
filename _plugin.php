@@ -4,7 +4,7 @@
 Plugin Name: Новый плагин
 Plugin URI: https://github.com/nikolays93
 Description:
-Version: 0.0.1
+Version: 0.1.1
 Author: NikolayS93
 Author URI: https://vk.com/nikolays_93
 Author EMAIL: nikolayS93@ya.ru
@@ -33,7 +33,9 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * $pageslug . _form_method - Аттрибут method формы на странице настроек плагина
  */
 
-namespace CDevelopers\NSPACE;
+namespace Nikolays93\NSPACE;
+
+use NikolayS93\WPAdminPageBeta as AdminPage;
 
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
@@ -41,41 +43,79 @@ if ( ! defined( 'ABSPATH' ) )
 const PLUGIN_DIR = __DIR__;
 const DOMAIN = '_plugin';
 
-// Нужно подключить заранее для подключения файлов @see include_required_files()
 // активации и деактивации плагина @see activate(), uninstall();
-require __DIR__ . '/utils.php';
+require PLUGIN_DIR . '/include/utils.php';
 
 class Plugin
 {
-    private static $initialized;
     private function __construct() {}
 
     static function activate() { add_option( Utils::get_option_name(), array() ); }
     static function uninstall() { delete_option( Utils::get_option_name() ); }
 
-    public static function initialize()
+    public static function _admin_assets()
     {
-        if( self::$initialized )
-            return false;
-
-        load_plugin_textdomain( DOMAIN, false, basename(PLUGIN_DIR) . '/languages/' );
-        self::include_required_files();
-
-        self::$initialized = true;
     }
 
-    /**
-     * Подключение файлов нужных для работы плагина
-     */
-    private static function include_required_files()
+
+    public static function setAdminMenuPage()
     {
-        $plugin_dir = Utils::get_plugin_dir();
+        $page = new AdminPage\Page(
+            Utils::get_option_name(),
+            __('Pluginname Title', DOMAIN),
+            array(
+                'parent'      => false,
+                'menu'        => __('Example', DOMAIN),
+                // 'validate'    => array($this, 'validate_options'),
+                'permissions' => 'manage_options',
+                'columns'     => 2,
+            )
+        );
 
-        // Utils::load_file_if_exists( $plugin_dir . '/includes/actions.php' );
-        // Utils::load_file_if_exists( $plugin_dir . '/includes/filters.php' );
+        $page->set_assets( array(__CLASS__, '_admin_assets') );
 
-        // includes
-        Utils::load_file_if_exists( $plugin_dir . '/includes/admin-menu-page.php' );
+        $page->set_content( function() {
+            include Utils::get_admin_template('menu-page.php');
+        } );
+
+        $page->add_section( new AdminPage\Section(
+            'Section',
+            __('Section'),
+            function() {
+                include Utils::get_admin_template('section.php');
+            }
+        ) );
+
+        $metabox1 = new AdminPage\Metabox(
+            'metabox1',
+            __('metabox1', DOMAIN),
+            function() {
+                include Utils::get_admin_template('metabox1.php');
+            },
+            $position = 'side',
+            $priority = 'high'
+        );
+
+        $page->add_metabox( $metabox1 );
+
+        $metabox2 = new AdminPage\Metabox(
+            'metabox2',
+            __('metabox2', DOMAIN),
+            function() {
+                include Utils::get_admin_template('metabox2.php');
+            },
+            $position = 'side',
+            $priority = 'high'
+        );
+
+        $page->add_metabox( $metabox2 );
+    }
+
+    public static function initialize()
+    {
+        load_plugin_textdomain( DOMAIN, false, basename(PLUGIN_DIR) . '/languages/' );
+
+        self::setAdminMenuPage();
     }
 }
 
