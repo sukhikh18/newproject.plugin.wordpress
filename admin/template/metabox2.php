@@ -1,6 +1,6 @@
 <?php
 
-namespace Nikolays93\NSPACE;
+namespace Nikolays93\_plugin;
 
 use NikolayS93\WPAdminFormBeta\Form as Form;
 

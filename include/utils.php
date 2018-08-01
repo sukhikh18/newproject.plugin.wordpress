@@ -1,42 +1,30 @@
 <?php
 
-namespace Nikolays93\NSPACE;
+namespace Nikolays93\_plugin;
 
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
 
-class Utils
+class Utils extends Plugin
 {
-    private static $options;
     private function __construct() {}
     private function __clone() {}
 
     /**
-     * Получает название опции плагина
-     *     Чаще всего это название плагина
-     *     Чаще всего оно используется как название страницы настроек
-     * @return string
-     */
-    public static function get_option_name() {
-
-        return apply_filters("get_{DOMAIN}_option_name", DOMAIN);
-    }
-
-    /**
-     * Получает настройку из self::$options || из кэша || из базы данных
+     * Получает настройку из parent::$options || из кэша || из базы данных
      * @param  mixed  $default Что вернуть если опции не существует
      * @return mixed
      */
     private static function get_option( $default = array() )
     {
-        if( ! self::$options )
-            self::$options = get_option( self::get_option_name(), $default );
+        if( ! parent::$options )
+            parent::$options = get_option( parent::get_option_name(), $default );
 
-        return apply_filters( "get_{DOMAIN}_option", self::$options );
+        return apply_filters( "get_{DOMAIN}_option", parent::$options );
     }
 
     /**
-     * Получаем url (адресную строку) до плагина
+     * Получает url (адресную строку) до плагина
      * @param  string $path путь должен начинаться с / (по аналогии с __DIR__)
      * @return string
      */
@@ -47,9 +35,29 @@ class Utils
         return apply_filters( "get_{DOMAIN}_plugin_url", $url, $path );
     }
 
-    public static function get_admin_template( $tpl = '' )
+    public static function get_template( $template, $slug = false, $data = array() )
     {
-        return PLUGIN_DIR . '/admin/template/' . $tpl;
+        if ($slug) $templates[] = PLUGIN_DIR . '/' . $template . '-' . $slug;
+        $templates[] = PLUGIN_DIR . '/' . $template;
+
+        var_dump($templates);
+
+        if ($tpl = locate_template($templates)) {
+            return $tpl;
+        }
+
+        return false;
+    }
+
+    public static function get_admin_template( $tpl = '', $data = array(), $include = false )
+    {
+        $filename = PLUGIN_DIR . '/admin/template/' . $tpl;
+        if( !file_exists($filename) ) $filename = false;
+
+        if( $filename && $include )
+            include $filename;
+
+        return $filename;
     }
 
     /**
@@ -74,7 +82,7 @@ class Utils
     }
 
     /**
-     * Установить параметр в опцию плагина
+     * Установит параметр в опцию плагина
      * @todo Подумать, может стоит сделать $autoload через фильтр, а не параметр
      *
      * @param mixed  $prop_name Ключ опции плагина || array(параметр => значение)
@@ -91,6 +99,6 @@ class Utils
             $option[ $prop_key ] = $prop_value;
         }
 
-        return update_option( self::get_option_name(), $option, $autoload );
+        return update_option( parent::get_option_name(), $option, $autoload );
     }
 }
