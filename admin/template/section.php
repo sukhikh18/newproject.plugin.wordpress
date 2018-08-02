@@ -1,8 +1,6 @@
 <?php
 
-namespace Nikolays93\NSPACE;
-
-use NikolayS93\WP_List_Table_Framework as Table;
+use NikolayS93\WPListTable as Table;
 
 // for example
 $table = new Table();

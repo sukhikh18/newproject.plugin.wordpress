@@ -7,7 +7,7 @@
  * Version: 0.1.2
  * Author: NikolayS93
  * Author URI: https://vk.com/nikolays_93
- * Author EMAIL: nikolayS93@ya.ru
+ * Author EMAIL: NikolayS93@ya.ru
  * License: GNU General Public License v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: _plugin
@@ -21,9 +21,9 @@
  * "get_{Text Domain}_plugin_url" - УРЛ плагина
  */
 
-namespace Nikolays93\_plugin;
+namespace NikolayS93\_plugin;
 
-use NikolayS93\WPAdminPageBeta as AdminPage;
+use NikolayS93\WPAdminPage as Admin;
 
 if ( ! defined( 'ABSPATH' ) )
   exit('You shall not pass'); // disable direct access
@@ -61,7 +61,7 @@ class Plugin
 
     public static function admin_menu_page()
     {
-        $page = new AdminPage\Page(
+        $page = new Admin\Page(
             Utils::get_option_name(),
             __('New Plugin name Title', DOMAIN),
             array(
@@ -79,7 +79,7 @@ class Plugin
             Utils::get_admin_template('menu-page.php', false, $inc = true);
         } );
 
-        $page->add_section( new AdminPage\Section(
+        $page->add_section( new Admin\Section(
             'Section',
             __('Section'),
             function() {
@@ -87,7 +87,7 @@ class Plugin
             }
         ) );
 
-        $metabox1 = new AdminPage\Metabox(
+        $metabox1 = new Admin\Metabox(
             'metabox1',
             __('metabox1', DOMAIN),
             function() {
@@ -99,7 +99,7 @@ class Plugin
 
         $page->add_metabox( $metabox1 );
 
-        $metabox2 = new AdminPage\Metabox(
+        $metabox2 = new Admin\Metabox(
             'metabox2',
             __('metabox2', DOMAIN),
             function() {
@@ -128,6 +128,11 @@ class Plugin
         load_plugin_textdomain( DOMAIN, false, basename(PLUGIN_DIR) . '/languages/' );
 
         require PLUGIN_DIR . '/include/utils.php';
+        // require PLUGIN_DIR . '/vendor/NikolayS93/wp-admin-page/src/Page.php';
+
+        $autoload = PLUGIN_DIR . '/vendor/autoload.php';
+        if( file_exists($autoload) )
+            include $autoload;
 
         self::admin_menu_page();
     }

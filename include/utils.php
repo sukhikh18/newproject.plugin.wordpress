@@ -1,6 +1,6 @@
 <?php
 
-namespace Nikolays93\_plugin;
+namespace NikolayS93\_plugin;
 
 if ( ! defined( 'ABSPATH' ) )
   exit; // disable direct access
