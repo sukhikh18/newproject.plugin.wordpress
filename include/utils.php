@@ -40,8 +40,6 @@ class Utils extends Plugin
         if ($slug) $templates[] = PLUGIN_DIR . '/' . $template . '-' . $slug;
         $templates[] = PLUGIN_DIR . '/' . $template;
 
-        var_dump($templates);
-
         if ($tpl = locate_template($templates)) {
             return $tpl;
         }
@@ -54,8 +52,9 @@ class Utils extends Plugin
         $filename = PLUGIN_DIR . '/admin/template/' . $tpl;
         if( !file_exists($filename) ) $filename = false;
 
-        if( $filename && $include )
+        if( $filename && $include ) {
             include $filename;
+        }
 
         return $filename;
     }
@@ -72,8 +71,9 @@ class Utils extends Plugin
     {
         $option = self::get_option();
         if( 'all' === $prop_name ) {
-            if( is_array($option) && count($option) )
+            if( is_array($option) && count($option) ) {
                 return $option;
+            }
 
             return $default;
         }
