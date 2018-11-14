@@ -2,6 +2,7 @@
     "require": {
         "NikolayS93/wp-admin-form": "dev-master",
         "NikolayS93/wp-admin-page": "dev-master",
+        "NikolayS93/wp-post-metabox": "dev-master",
         "NikolayS93/wp-admin-table": "dev-master"
     },
     "repositories": [
@@ -12,6 +13,10 @@
         {
             "type": "git",
             "url": "https://github.com/nikolays93/wp-admin-page"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/nikolays93/wp-post-metabox"
         },
         {
             "type": "git",
