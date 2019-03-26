@@ -1,14 +1,21 @@
 <?php
 
-namespace NikolayS93\_plugin;
+namespace NikolayS93\Plugin;
 
-if ( ! defined( 'ABSPATH' ) )
-  exit; // disable direct access
+if ( ! defined( 'ABSPATH' ) ) exit; // disable direct access
 
-class Utils extends Plugin
+/**
+ * Plugin utils (Used on Plugin only)
+ */
+trait Utils
 {
-    private function __construct() {}
-    private function __clone() {}
+    /**
+     * Get option name for a options in the Wordpress database
+     */
+    public static function get_option_name()
+    {
+        return apply_filters("get_{DOMAIN}_option_name", DOMAIN);
+    }
 
     /**
      * Получает настройку из parent::$options || из кэша || из базы данных
@@ -17,10 +24,11 @@ class Utils extends Plugin
      */
     private static function get_option( $default = array() )
     {
-        if( ! parent::$options )
-            parent::$options = get_option( parent::get_option_name(), $default );
+        if( ! $this->options ) {
+            $this->options = get_option( static::get_option_name(), $default );
+        }
 
-        return apply_filters( "get_{DOMAIN}_option", parent::$options );
+        return apply_filters( "get_{DOMAIN}_option", $this->options );
     }
 
     /**
@@ -35,6 +43,13 @@ class Utils extends Plugin
         return apply_filters( "get_{DOMAIN}_plugin_url", $url, $path );
     }
 
+    /**
+     * [get_template description]
+     * @param  [type]  $template [description]
+     * @param  boolean $slug     [description]
+     * @param  array   $data     [description]
+     * @return string            [description]
+     */
     public static function get_template( $template, $slug = false, $data = array() )
     {
         if ($slug) $templates[] = PLUGIN_DIR . '/' . $template . '-' . $slug;
@@ -44,13 +59,19 @@ class Utils extends Plugin
             return $tpl;
         }
 
-        return false;
+        return '';
     }
 
+    /**
+     * [get_admin_template description]
+     * @param  string  $tpl     [description]
+     * @param  array   $data    [description]
+     * @param  boolean $include [description]
+     * @return string
+     */
     public static function get_admin_template( $tpl = '', $data = array(), $include = false )
     {
-        $filename = PLUGIN_DIR . '/admin/template/' . $tpl;
-        if( !file_exists($filename) ) $filename = false;
+        $filename = static::get_template('admin/template/' . $tpl, false, $data);
 
         if( $filename && $include ) {
             include $filename;

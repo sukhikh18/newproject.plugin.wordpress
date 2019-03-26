@@ -4,7 +4,7 @@
  * Plugin Name: New plugin
  * Plugin URI: https://github.com/nikolays93
  * Description: New plugin boilerplate
- * Version: 0.1.2
+ * Version: 0.0.3
  * Author: NikolayS93
  * Author URI: https://vk.com/nikolays_93
  * Author EMAIL: NikolayS93@ya.ru
@@ -14,7 +14,7 @@
  * Domain Path: /languages/
  */
 
-namespace NikolayS93\_plugin;
+namespace NikolayS93\Plugin;
 
 use NikolayS93\WPAdminPage as Admin;
 
@@ -22,51 +22,49 @@ if ( !defined( 'ABSPATH' ) ) exit('You shall not pass');
 
 require_once ABSPATH . "wp-admin/includes/plugin.php";
 
-if (version_compare(PHP_VERSION, '5.3') < 0) {
-    throw new \Exception('Plugin requires PHP 5.3 or above');
+if (version_compare(PHP_VERSION, '5.4') < 0) {
+    throw new \Exception('Plugin requires PHP 5.4 or above');
 }
 
 class Plugin
 {
-    protected static $data;
-    protected static $options;
-
-    private function __construct() {}
-    private function __clone() {}
+    use Creational\Singleton;
 
     /**
-     * Get option name for a options in the Wordpress database
+     * @var array Commented data on this file top
      */
-    public static function get_option_name()
-    {
-        return apply_filters("get_{DOMAIN}_option_name", DOMAIN);
-    }
+    protected $data;
 
     /**
-     * Define required plugin data
+     * @var array Field on wo_option for this plugin
      */
-    public static function define()
+    protected $options;
+
+    function __init()
     {
-        self::$data = get_plugin_data(__FILE__);
+        /**
+         * Define required plugin data
+         */
+        $this->data = get_plugin_data(__FILE__);
 
         if( !defined(__NAMESPACE__ . '\DOMAIN') )
-            define(__NAMESPACE__ . '\DOMAIN', self::$data['TextDomain']);
+            define(__NAMESPACE__ . '\DOMAIN', $this->data['TextDomain']);
 
         if( !defined(__NAMESPACE__ . '\PLUGIN_DIR') )
             define(__NAMESPACE__ . '\PLUGIN_DIR', __DIR__);
-    }
 
-    /**
-     * include required files
-     */
-    public static function initialize()
-    {
         load_plugin_textdomain( DOMAIN, false, basename(PLUGIN_DIR) . '/languages/' );
 
-        require PLUGIN_DIR . '/include/utils.php';
-
-        $autoload = PLUGIN_DIR . '/vendor/autoload.php';
+        $autoload = __DIR__ . '/vendor/autoload.php';
         if( file_exists($autoload) ) include $autoload;
+
+        /**
+         * include required files
+         */
+        require PLUGIN_DIR . '/include/utils.php';
+        // require PLUGIN_DIR . '/include/class-plugin-queries.php';
+        // require PLUGIN_DIR . '/include/class-plugin-routes.php';
+        // require PLUGIN_DIR . '/include/class-plugin-widget.php';
     }
 
     static function activate() { add_option( self::get_option_name(), array() ); }
@@ -76,7 +74,7 @@ class Plugin
     // {
     // }
 
-    public static function admin_menu_page()
+    public function addMenuPage()
     {
         $page = new Admin\Page(
             Utils::get_option_name(),
@@ -130,11 +128,23 @@ class Plugin
     }
 }
 
-Plugin::define();
+add_action( 'plugins_loaded', function() {
+
+    $Plugin = Plugin::getInstance();
+    $Plugin->addMenuPage();
+
+    // $PluginRoutes = PluginRoutes::getInstance();
+    // add_action( 'init', array($PluginRoutes, '__register') );
+
+    // $PluginQueries = PluginQueries::getInstance();
+    // add_action( 'pre_get_posts', array($PluginQueries, '__register') );
+
+    // add_action( 'widgets_init', array(__NAMESPACE__ . '\PluginWidget', '__register') );
+}, 10 );
+
+// add_action( 'plugins_loaded', array( $Plugin, 'admin_menu_page' ), 10 );
+// add_action( 'admin_init', 'seo_filter_taxanomy_actions' );
 
 // register_activation_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'activate' ) );
 // register_uninstall_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'uninstall' ) );
 // register_deactivation_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'deactivate' ) );
-
-add_action( 'plugins_loaded', array( __NAMESPACE__ . '\Plugin', 'initialize' ), 10 );
-add_action( 'plugins_loaded', array( __NAMESPACE__ . '\Plugin', 'admin_menu_page' ), 10 );
