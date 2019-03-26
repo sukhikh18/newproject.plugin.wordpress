@@ -1,6 +1,8 @@
 <?php
 
-namespace NikolayS93\Plugin;
+namespace NikolayS93\Plugin\Traits;
+
+use NikolayS93\Plugin as Plugin;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // disable direct access
 
@@ -9,12 +11,18 @@ if ( ! defined( 'ABSPATH' ) ) exit; // disable direct access
  */
 trait Utils
 {
+    public static function get_plugin_data()
+    {
+        $Plugin = static::getInstance();
+        return $Plugin->data;
+    }
+
     /**
      * Get option name for a options in the Wordpress database
      */
     public static function get_option_name()
     {
-        return apply_filters("get_{DOMAIN}_option_name", DOMAIN);
+        return apply_filters("get_{Plugin\DOMAIN}_option_name", Plugin\DOMAIN);
     }
 
     /**
@@ -24,11 +32,13 @@ trait Utils
      */
     private static function get_option( $default = array() )
     {
-        if( ! $this->options ) {
-            $this->options = get_option( static::get_option_name(), $default );
+        $Plugin = static::getInstance();
+
+        if( ! $Plugin->options ) {
+            $Plugin->options = get_option( static::get_option_name(), $default );
         }
 
-        return apply_filters( "get_{DOMAIN}_option", $this->options );
+        return apply_filters( "get_{Plugin\DOMAIN}_option", $Plugin->options );
     }
 
     /**
@@ -38,9 +48,9 @@ trait Utils
      */
     public static function get_plugin_url( $path = '' )
     {
-        $url = plugins_url( basename(PLUGIN_DIR) ) . $path;
+        $url = plugins_url( basename(Plugin\PLUGIN_DIR) ) . $path;
 
-        return apply_filters( "get_{DOMAIN}_plugin_url", $url, $path );
+        return apply_filters( "get_{Plugin\DOMAIN}_plugin_url", $url, $path );
     }
 
     /**
@@ -52,14 +62,22 @@ trait Utils
      */
     public static function get_template( $template, $slug = false, $data = array() )
     {
-        if ($slug) $templates[] = PLUGIN_DIR . '/' . $template . '-' . $slug;
-        $templates[] = PLUGIN_DIR . '/' . $template;
+        $filename = '';
 
-        if ($tpl = locate_template($templates)) {
-            return $tpl;
+        if ($slug) $templates[] = Plugin\PLUGIN_DIR . '/' . $template . '-' . $slug;
+        $templates[] = Plugin\PLUGIN_DIR . '/' . $template;
+
+        foreach ($templates as $template)
+        {
+            if( ($filename = $template . '.php') && file_exists($filename) ) {
+                break;
+            }
+            elseif( ($filename = $template) && file_exists($filename) ) {
+                break;
+            }
         }
 
-        return '';
+        return $filename;
     }
 
     /**
@@ -120,6 +138,6 @@ trait Utils
             $option[ $prop_key ] = $prop_value;
         }
 
-        return update_option( parent::get_option_name(), $option, $autoload );
+        return update_option( static::get_option_name(), $option, $autoload );
     }
 }

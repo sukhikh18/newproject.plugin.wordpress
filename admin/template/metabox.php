@@ -1,6 +1,6 @@
 <?php
 
-namespace NikolayS93\_plugin;
+namespace NikolayS93\Plugin;
 
 use NikolayS93\WPAdminForm\Form as Form;
 
@@ -34,6 +34,10 @@ $data = array(
 
 $form = new Form( $data, $is_table = true );
 $form->display();
+
+echo "<pre>";
+print_r( static::get( 'all', array() ) );
+echo "</pre>";
 
 submit_button( 'Сохранить', 'primary right', 'save_changes' );
 echo '<div class="clear"></div>';
