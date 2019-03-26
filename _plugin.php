@@ -24,57 +24,15 @@ if (version_compare(PHP_VERSION, '5.4') < 0) {
 }
 
 if( !defined(__NAMESPACE__ . '\PLUGIN_DIR') ) define(__NAMESPACE__ . '\PLUGIN_DIR', __DIR__);
+if( !defined(__NAMESPACE__ . '\PLUGIN_FILE') ) define(__NAMESPACE__ . '\PLUGIN_FILE', __FILE__);
 
 require_once ABSPATH . "wp-admin/includes/plugin.php";
-require_once PLUGIN_DIR . '/include/Traits/Singleton.php';
+require_once PLUGIN_DIR . '/include/Creational/Singleton.php';
 require_once PLUGIN_DIR . '/include/Plugin.php';
-
-class Plugin
-{
-    use Traits\Singleton;
-    use Traits\Utils;
-
-    /**
-     * @var array Commented data on this file top
-     */
-    protected $data;
-
-    /**
-     * @var array Field on wo_option for this plugin
-     */
-    protected $options;
-
-    function __init()
-    {
-        /**
-         * Define required plugin data
-         */
-        $this->data = get_plugin_data(__FILE__);
-
-        if( !defined(__NAMESPACE__ . '\DOMAIN') )
-            define(__NAMESPACE__ . '\DOMAIN', $this->data['TextDomain']);
-
-        load_plugin_textdomain( DOMAIN, false, basename(PLUGIN_DIR) . '/languages/' );
-
-        $autoload = PLUGIN_DIR . '/vendor/autoload.php';
-        if( file_exists($autoload) ) include $autoload;
-
-        /**
-         * include required files
-         */
-        // require PLUGIN_DIR . '/include/class-plugin-queries.php';
-        // require PLUGIN_DIR . '/include/class-plugin-routes.php';
-        // require PLUGIN_DIR . '/include/class-plugin-widget.php';
-    }
-
-    static function activate() { add_option( static::get_option_name(), array() ); }
-    static function uninstall() { delete_option( static::get_option_name() ); }
-}
 
 add_action( 'plugins_loaded', function() {
 
     $Plugin = Plugin::getInstance();
-    $Plugin->addMenuPage();
 
     // $PluginRoutes = PluginRoutes::getInstance();
     // add_action( 'init', array($PluginRoutes, '__register') );
@@ -84,29 +42,21 @@ add_action( 'plugins_loaded', function() {
 
     // add_action( 'widgets_init', array(__NAMESPACE__ . '\PluginWidget', '__register') );
 
-    $page = new Admin\Page(
-        static::get_option_name(),
-        __('New Plugin name Title', DOMAIN),
-        array(
-            'parent'      => false,
-            'menu'        => __('Example', DOMAIN),
-            // 'validate'    => array($this, 'validate_options'),
-            'permissions' => 'manage_options',
-            'columns'     => 2,
-        )
-    );
+    $Page = $Plugin->addMenuPage(__('New Plugin name Title', DOMAIN), array(
+        'menu' => __('Example', DOMAIN),
+    ));
 
-    // $page->set_assets( function() {} );
+    // $Page->set_assets( function() {} );
 
-    $page->set_content( function() {
-        static::get_admin_template('menu-page', false, $inc = true);
+    $Page->set_content( function() {
+        Plugin::get_admin_template('menu-page', false, $inc = true);
     } );
 
-    $page->add_section( new Admin\Section(
+    $Page->add_section( new Admin\Section(
         'Section',
         __('Section'),
         function() {
-            static::get_admin_template('section', false, $inc = true);
+            Plugin::get_admin_template('section', false, $inc = true);
         }
     ) );
 
@@ -114,17 +64,14 @@ add_action( 'plugins_loaded', function() {
         'metabox',
         __('metabox', DOMAIN),
         function() {
-            static::get_admin_template('metabox', false, $inc = true);
+            Plugin::get_admin_template('metabox', false, $inc = true);
         },
         $position = 'side',
         $priority = 'high'
     );
 
-    $page->add_metabox( $metabox );
+    $Page->add_metabox( $metabox );
 }, 10 );
-
-// add_action( 'plugins_loaded', array( $Plugin, 'admin_menu_page' ), 10 );
-// add_action( 'admin_init', 'seo_filter_taxanomy_actions' );
 
 // register_activation_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'activate' ) );
 // register_uninstall_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'uninstall' ) );

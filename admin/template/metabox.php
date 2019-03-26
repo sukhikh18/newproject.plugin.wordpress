@@ -4,6 +4,8 @@ namespace NikolayS93\Plugin;
 
 use NikolayS93\WPAdminForm\Form as Form;
 
+$Plugin = Plugin::getInstance();
+
 $data = array(
     // id or name - required
     array(
@@ -36,7 +38,7 @@ $form = new Form( $data, $is_table = true );
 $form->display();
 
 echo "<pre>";
-print_r( static::get( 'all', array() ) );
+print_r( $Plugin->get( 'all', array() ) );
 echo "</pre>";
 
 submit_button( 'Сохранить', 'primary right', 'save_changes' );
