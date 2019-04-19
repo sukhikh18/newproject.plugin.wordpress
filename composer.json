@@ -1,9 +1,14 @@
 {
     "require": {
-        "NikolayS93/wp-admin-form": "dev-master",
-        "NikolayS93/wp-admin-page": "dev-master",
-        "NikolayS93/wp-post-metabox": "dev-master",
-        "NikolayS93/wp-admin-table": "dev-master"
+        "nikolays93/wp-admin-form": "dev-master",
+        "nikolays93/wp-admin-page": "dev-master",
+        "nikolays93/wp-post-metabox": "dev-master",
+        "nikolays93/wp-admin-table": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "NikolayS93\\Plugin\\": "include"
+        }
     },
     "repositories": [
         {

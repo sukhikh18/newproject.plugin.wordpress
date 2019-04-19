@@ -27,24 +27,24 @@ if( !defined(__NAMESPACE__ . '\PLUGIN_DIR') ) define(__NAMESPACE__ . '\PLUGIN_DI
 if( !defined(__NAMESPACE__ . '\PLUGIN_FILE') ) define(__NAMESPACE__ . '\PLUGIN_FILE', __FILE__);
 
 require_once ABSPATH . "wp-admin/includes/plugin.php";
-require_once PLUGIN_DIR . '/include/Creational/Singleton.php';
-require_once PLUGIN_DIR . '/include/Plugin.php';
+require_once PLUGIN_DIR . '/vendor/autoload.php';
 
-add_action( 'plugins_loaded', function() {
+/**
+ * Uniq prefix
+ */
+if(!defined(__NAMESPACE__ . '\DOMAIN')) define(__NAMESPACE__ . '\DOMAIN', Plugin::get_plugin_data('TextDomain'));
 
-    $Plugin = Plugin::getInstance();
+add_action( 'plugins_loaded', __NAMESPACE__ . '\__init', 10 );
+function __init() {
 
-    // $PluginRoutes = PluginRoutes::getInstance();
-    // add_action( 'init', array($PluginRoutes, '__register') );
-
-    // $PluginQueries = PluginQueries::getInstance();
-    // add_action( 'pre_get_posts', array($PluginQueries, '__register') );
-
-    // add_action( 'widgets_init', array(__NAMESPACE__ . '\PluginWidget', '__register') );
-
-    $Page = $Plugin->addMenuPage(__('New Plugin name Title', DOMAIN), array(
+    /** @var Admin\Page */
+    $Page = new Admin\Page( Plugin::get_option_name(), __('New Plugin name Title', DOMAIN), array(
+        'parent'      => '', // woocommerce
         'menu' => __('Example', DOMAIN),
-    ));
+        // 'validate'    => array($this, 'validate_options'),
+        'permissions' => 'manage_options',
+        'columns'     => 2,
+    ) );
 
     // $Page->set_assets( function() {} );
 
@@ -71,7 +71,7 @@ add_action( 'plugins_loaded', function() {
     );
 
     $Page->add_metabox( $metabox );
-}, 10 );
+}
 
 // register_activation_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'activate' ) );
 // register_uninstall_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'uninstall' ) );
