@@ -4,9 +4,8 @@ namespace NikolayS93\Plugin;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // disable direct access
 
-/**
- * abstract
- */
+/** @class abstract */
+
 class Plugin
 {
     /**
