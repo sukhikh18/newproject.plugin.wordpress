@@ -4,7 +4,7 @@
  * Plugin Name: New plugin
  * Plugin URI: https://github.com/nikolays93
  * Description: New plugin boilerplate
- * Version: 0.0.3
+ * Version: 0.0.4
  * Author: NikolayS93
  * Author URI: https://vk.com/nikolays_93
  * Author EMAIL: NikolayS93@ya.ru
@@ -18,10 +18,7 @@ namespace NikolayS93\Plugin;
 
 use NikolayS93\WPAdminPage as Admin;
 
-if ( !defined( 'ABSPATH' ) ) exit('You shall not pass');
-if (version_compare(PHP_VERSION, '5.4') < 0) {
-    throw new \Exception('Plugin requires PHP 5.4 or above');
-}
+if( !defined( 'ABSPATH' ) ) exit('You shall not pass');
 
 if( !defined(__NAMESPACE__ . '\PLUGIN_DIR') ) define(__NAMESPACE__ . '\PLUGIN_DIR', __DIR__);
 if( !defined(__NAMESPACE__ . '\PLUGIN_FILE') ) define(__NAMESPACE__ . '\PLUGIN_FILE', __FILE__);
@@ -34,8 +31,8 @@ require_once PLUGIN_DIR . '/vendor/autoload.php';
  */
 if(!defined(__NAMESPACE__ . '\DOMAIN')) define(__NAMESPACE__ . '\DOMAIN', Plugin::get_plugin_data('TextDomain'));
 
-add_action( 'plugins_loaded', __NAMESPACE__ . '\__init', 10 );
-function __init() {
+add_action( 'plugins_loaded', __NAMESPACE__ . '\register_plugin_page', 10 );
+function register_plugin_page() {
 
     /** @var Admin\Page */
     $Page = new Admin\Page( Plugin::get_option_name(), __('New Plugin name Title', DOMAIN), array(
@@ -60,7 +57,7 @@ function __init() {
         }
     ) );
 
-    $metabox = new Admin\Metabox(
+    $Page->add_metabox( new Admin\Metabox(
         'metabox',
         __('metabox', DOMAIN),
         function() {
@@ -68,11 +65,9 @@ function __init() {
         },
         $position = 'side',
         $priority = 'high'
-    );
-
-    $Page->add_metabox( $metabox );
+    ) );
 }
 
-// register_activation_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'activate' ) );
-// register_uninstall_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'uninstall' ) );
-// register_deactivation_hook( __FILE__, array( __NAMESPACE__ . '\Plugin', 'deactivate' ) );
+register_activation_hook   ( PLUGIN_FILE, array( __NAMESPACE__ . '\Plugin', 'activate' ) );
+register_deactivation_hook ( PLUGIN_FILE, array( __NAMESPACE__ . '\Plugin', 'deactivate' ) );
+register_uninstall_hook    ( PLUGIN_FILE, array( __NAMESPACE__ . '\Plugin', 'uninstall' ) );

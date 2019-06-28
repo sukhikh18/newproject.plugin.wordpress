@@ -13,18 +13,27 @@ class Plugin
      */
     protected static $data;
 
-    static function uninstall() { delete_option( static::get_option_name() ); }
     static function activate()
     {
         add_option( static::get_option_name(), array() );
     }
 
+    static function deactivate() {}
+
+    /**
+     * Hook works when delete this plugin in admin panel
+     */
+    static function uninstall()
+    {
+        delete_option( static::get_option_name() );
+    }
+
     /**
      * Get data about this plugin
      * @param  string|null $arg array key (null for all data)
-     * @return mixed
+     * @return string|array
      */
-    public static function get_plugin_data( $arg = null )
+    public static function get_plugin_data( $key = null )
     {
         /** Fill if is empty */
         if( empty(static::$data) ) {
@@ -33,8 +42,8 @@ class Plugin
         }
 
         /** Get by key */
-        if( $arg ) {
-            return isset( static::$data[ $arg ] ) ? static::$data[ $arg ] : null;
+        if( $key ) {
+            return isset( static::$data[ $key ] ) ? static::$data[ $key ] : null;
         }
 
         /** Get all */
@@ -44,12 +53,9 @@ class Plugin
     /**
      * Get option name for a options in the Wordpress database
      */
-    public static function get_option_name( $context = 'admin' )
+    public static function get_option_name( $suffix = '' )
     {
-        $option_name = DOMAIN;
-        if( 'admin' == $context ) $option_name.= '_adm';
-
-        return apply_filters("get_{DOMAIN}_option_name", $option_name, $context);
+        return apply_filters("get_{DOMAIN}_option_name", DOMAIN . $suffix, $suffix);
     }
 
     /**
@@ -69,26 +75,29 @@ class Plugin
      * @param  [type]  $template [description]
      * @param  boolean $slug     [description]
      * @param  array   $data     @todo
-     * @return string            [description]
+     * @return string|false
      */
     public static function get_template( $template, $slug = false, $data = array() )
     {
-        $filename = '';
+        /**
+         * @note think about strripos
+         */
+        @list($template, $ext) = explode('.', $template);
+        if( !$ext ) $ext = 'php';
 
-        if ($slug) $templates[] = PLUGIN_DIR . '/' . $template . '-' . $slug;
-        $templates[] = PLUGIN_DIR . '/' . $template;
+        $paths = array();
 
-        foreach ($templates as $template)
+        if ($slug) $paths[] = PLUGIN_DIR . "/$template-$slug.$ext";
+        $paths[] = PLUGIN_DIR . "/$template.$ext";
+
+        foreach ($paths as $path)
         {
-            if( ($filename = $template . '.php') && file_exists($filename) ) {
-                break;
-            }
-            elseif( ($filename = $template) && file_exists($filename) ) {
-                break;
+            if( file_exists($path) && is_readable($path) ) {
+                return $path;
             }
         }
 
-        return $filename;
+        return false;
     }
 
     /**
