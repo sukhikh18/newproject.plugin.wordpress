@@ -4,7 +4,7 @@
  * Plugin Name: New plugin
  * Plugin URI: https://github.com/nikolays93
  * Description: New plugin boilerplate
- * Version: 0.0.4
+ * Version: 0.0.5
  * Author: NikolayS93
  * Author URI: https://vk.com/nikolays_93
  * Author EMAIL: NikolayS93@ya.ru
