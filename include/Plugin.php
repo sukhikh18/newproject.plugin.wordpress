@@ -2,9 +2,10 @@
 
 namespace NikolayS93\Plugin;
 
+// disable direct access
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-} // disable direct access
+}
 
 /** @class abstract */
 class Plugin {
@@ -83,7 +84,7 @@ class Plugin {
 	 */
 	public static function get_template( $template, $slug = false, $data = array() ) {
 		/**
-		 * @note think about strripos
+		 * @todo think about strripos
 		 */
 		if ( false !== strripos( $template, '.' ) ) {
 			@list( $template, $ext ) = explode( '.', $template );
