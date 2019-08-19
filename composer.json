@@ -1,35 +1,25 @@
 {
-    "autoload": {
-        "psr-4": {
-            "NikolayS93\\Plugin\\": "include"
-        }
+  "require": {
+    "nikolays93/wp-admin-form": "dev-master",
+    "nikolays93/wp-admin-page": "dev-master"
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/nikolays93/wp-admin-form"
     },
-    "require": {
-        "nikolays93/wp-admin-form": "dev-master",
-        "nikolays93/wp-admin-page": "dev-master"
-    },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/nikolays93/wp-admin-form"
-        },
-        {
-            "type": "git",
-            "url": "https://github.com/nikolays93/wp-admin-page"
-        }
-    ],
-    "~require": {
-        "nikolays93/wp-post-metabox": "dev-master",
-        "nikolays93/wp-admin-table": "dev-master"
-    },
-    "~repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/nikolays93/wp-post-metabox"
-        },
-        {
-            "type": "git",
-            "url": "https://github.com/nikolays93/wp-admin-table"
-        }
-    ],
+    {
+      "type": "git",
+      "url": "https://github.com/nikolays93/wp-admin-page"
+    }
+  ],
+  "~require": {
+    "nikolays93/wp-admin-table": "dev-master"
+  },
+  "~repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/nikolays93/wp-admin-table"
+    }
+  ]
 }
