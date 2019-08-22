@@ -16,17 +16,26 @@
 
 use NikolayS93\WPAdminPage as Admin;
 
-/**
- * Main plugin class.
- *
- * @since 1.0.0
- */
 class Plugin {
+	/**
+	 * Path to this file
+	 */
 	const FILE = __FILE__;
 
+	/**
+	 * Path to plugin directory
+	 */
 	const DIR = __DIR__;
 
-	const DOMAIN = '_plugin';
+	/**
+	 * Uniq plugin slug name
+	 */
+	const DOMAIN = 'plugin';
+
+	/**
+	 * Uniq plugin prefix
+	 */
+	const PREFIX = 'plugin_';
 
 	/**
 	 * The capability required to use this plugin.
@@ -85,9 +94,9 @@ class Plugin {
 	 * Get option name for a options in the Wordpress database
 	 */
 	public static function get_option_name( $suffix = '' ) {
-		$option_name = $suffix ? "{self::DOMAIN}_{$suffix}" : self::DOMAIN;
+		$option_name = $suffix ? self::PREFIX . $suffix : substr(self::PREFIX, 0, -1);
 
-		return apply_filters( "get_{self::DOMAIN}_option_name", $option_name, $suffix );
+		return apply_filters( self::PREFIX . 'get_option_name', $option_name, $suffix );
 	}
 
 	/**
@@ -100,7 +109,7 @@ class Plugin {
 	public static function get_plugin_url( $path = '' ) {
 		$url = plugins_url( basename( self::DIR ) ) . $path;
 
-		return apply_filters( "get_{self::DOMAIN}_plugin_url", $url, $path );
+		return apply_filters( self::PREFIX . 'get_plugin_url', $url, $path );
 	}
 
 	/**
@@ -108,9 +117,8 @@ class Plugin {
 	 */
 	public function setup() {
 		require_once self::DIR . '/vendor/autoload.php';
-		// require ./../;
 		// Allow people to change what capability is required to use this plugin.
-		$this->permissions = apply_filters( 'plugin_cap', $this->permissions );
+		$this->permissions = apply_filters( self::PREFIX . 'permissions', $this->permissions );
 
 		// load plugin languages
 		load_plugin_textdomain( self::DOMAIN, false,
@@ -170,64 +178,56 @@ class Plugin {
 	 * Get plugin template (and include with $data maybe)
 	 *
 	 * @param  [type]  $template [description]
-	 * @param boolean $slug [description]
 	 * @param array $data @todo
 	 *
 	 * @return string|false
 	 */
-	public static function get_template( $template, $slug = false, $data = array(), $include = false ) {
-		if ( false !== strripos( $template, '.' ) ) {
-			// @todo repair it (filename maybe include twice and more dots)
-			@list( $template, $ext ) = explode( '.', $template );
+	public static function get_template( $template, $data = array(), $include = false ) {
+		if ( false !== ($pos = strrpos( $template, '.' )) ) {
+			$template = substr($template, 0, $pos - 1);
+			$ext = substr($template, $pos + 1);
 		} else {
 			$ext = 'php';
 		}
 
-		$paths = array();
-		// push paths to find list
-		if ( $slug ) {
-			array_push( $paths, self::DIR . "/$template-$slug.$ext" );
-		}
-		array_push( $paths, self::DIR . "/$template.$ext" );
-
-		foreach ( $paths as $path ) {
-			if ( file_exists( $path ) && is_readable( $path ) ) {
-				// extract to included file
-				if ( $data ) {
-					extract( $data );
-				}
-
-				if ( $include ) {
-					include $path;
-				}
-
-				return $path;
+		$path = self::DIR . "/$template.$ext";
+		if( file_exists( $path ) && is_readable( $path ) ) {
+			if( !empty($data) && is_array($data) ) {
+				extract( $data, EXTR_SKIP );
 			}
+
+			if ( $include ) {
+				include $path;
+			}
+
+			return $path;
 		}
 
 		return false;
 	}
 
 	/**
-	 * Получает параметр из опции плагина
+	 * Get plugin setting from cache or database
 	 *
-	 * @param string $prop_name Ключ опции плагина или null (вернуть опцию целиком)
-	 * @param mixed $default Что возвращать, если параметр не найден
+	 * @param string $prop_name Option key or null (for a full request)
+	 * @param mixed $default What's return if field value not defined.
 	 *
 	 * @return mixed
-	 * @todo Добавить фильтр
 	 *
 	 */
 	public static function get_setting( $prop_name = null, $default = false, $context = '' ) {
 		$option_name = static::get_option_name( $context );
 
 		/**
-		 * Get plugin setting from cache or database
+		 * Get field value from wp_options
+		 *
 		 * @link https://developer.wordpress.org/reference/functions/get_option/
+		 * @var mixed
 		 */
-		$option = apply_filters( "get_{DOMAIN}_option", get_option( $option_name, $default ) );
+		$option = apply_filters( self::PREFIX . 'get_option',
+			get_option( $option_name, $default ) );
 
-		if ( ! $prop_name || 'all' == $prop_name ) {
+		if ( ! $prop_name ) {
 			return ! empty( $option ) ? $option : $default;
 		}
 
@@ -235,14 +235,13 @@ class Plugin {
 	}
 
 	/**
-	 * Установит параметр в опцию плагина
+	 * Set new plugin setting
 	 *
-	 * @param string|array $prop_name Ключ опции плагина || array(параметр => значение)
-	 * @param string $value значение (если $prop_name не массив)
+	 * @param string|array $prop_name Option key || array
+	 * @param string $value           value for $prop_name string key
 	 * @param string $context
 	 *
-	 * @return bool             Совершились ли обновления @see update_option()
-	 * @todo Подумать, может стоит сделать $autoload через фильтр, а не параметр
+	 * @return bool                   Is updated @see update_option()
 	 *
 	 */
 	public static function set_setting( $prop_name, $value = '', $context = '' ) {
@@ -262,12 +261,11 @@ class Plugin {
 
 		if ( ! empty( $option ) ) {
 			$option_name = static::get_option_name( $context );
-			$autoload    = null;
-			if ( 'settings' == $context ) {
-				$autoload = 'no';
-			}
+			// Do not auto load for plugin settings (default)
+			$autoload    = ! $context ? 'no' : null;
 
-			return update_option( $option_name, $option, $autoload );
+			return update_option( $option_name, $option,
+				apply_filters( self::PREFIX . 'autoload', $autoload, $option, $context ) );
 		}
 
 		return false;
