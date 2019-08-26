@@ -94,7 +94,7 @@ class Plugin {
 	 * Get option name for a options in the Wordpress database
 	 */
 	public static function get_option_name( $suffix = '' ) {
-		$option_name = $suffix ? self::PREFIX . $suffix : substr(self::PREFIX, 0, -1);
+		$option_name = $suffix ? self::PREFIX . $suffix : self::DOMAIN;
 
 		return apply_filters( self::PREFIX . 'get_option_name', $option_name, $suffix );
 	}
@@ -102,104 +102,31 @@ class Plugin {
 	/**
 	 * Get plugin url
 	 *
-	 * @param string $path path must be started from / (also as __DIR__)
+	 * @param string $path
 	 *
 	 * @return string
 	 */
 	public static function get_plugin_url( $path = '' ) {
-		$url = plugins_url( basename( self::DIR ) ) . $path;
+		$url = plugins_url( basename( self::DIR ) ) . '/' . ltrim($path, '/');
 
 		return apply_filters( self::PREFIX . 'get_plugin_url', $url, $path );
 	}
 
-	/**
-	 * Register all of the needed hooks and actions.
-	 */
-	public function setup() {
-		require_once self::DIR . '/vendor/autoload.php';
-		// Allow people to change what capability is required to use this plugin.
-		$this->permissions = apply_filters( self::PREFIX . 'permissions', $this->permissions );
-
-		// load plugin languages
-		load_plugin_textdomain( self::DOMAIN, false,
-			basename( self::DIR ) . '/languages/' );
-
-		$this->register_plugin_page();
-	}
 
 	/**
-	 * Register new admin menu item
-	 *
-	 * @return $Page NikolayS93\WPAdminPage\Page
-	 */
-	public function register_plugin_page() {
-		/** @var Admin\Page */
-		$Page = new Admin\Page(
-			Plugin::get_option_name(),
-			__( 'New Plugin name Title', self::DOMAIN ),
-			array(
-				'parent'      => '', // for ex. woocommerce
-				'menu'        => __( 'Example', self::DOMAIN ),
-				'permissions' => $this->permissions,
-				'columns'     => 2,
-				// 'validate'    => array($this, 'validate_options'),
-			)
-		);
-
-		$Page->set_content( function () {
-			Plugin::get_template( 'admin/template/menu-page', false, array(), true );
-		} );
-
-		$Page->add_section( new Admin\Section(
-			'Section',
-			__( 'Section', self::DOMAIN ),
-			function () {
-				Plugin::get_template( 'admin/template/section', false, array(), true );
-			}
-		) );
-
-		$Page->add_metabox( new Admin\Metabox(
-			'metabox',
-			__( 'metabox', self::DOMAIN ),
-			function () {
-				Plugin::get_template( 'admin/template/metabox', false, array(), true );
-			},
-			$position = 'side',
-			$priority = 'high'
-		) );
-
-		$Page->set_assets( function () {
-		} );
-
-		return $Page;
-	}
-
-	/**
-	 * Get plugin template (and include with $data maybe)
+	 * Get plugin template path
 	 *
 	 * @param  [type]  $template [description]
-	 * @param array $data @todo
 	 *
 	 * @return string|false
 	 */
-	public static function get_template( $template, $data = array(), $include = false ) {
-		if ( false !== ($pos = strrpos( $template, '.' )) ) {
-			$template = substr($template, 0, $pos - 1);
-			$ext = substr($template, $pos + 1);
-		} else {
-			$ext = 'php';
+	public static function get_template( $template ) {
+		if( ! pathinfo($template, PATHINFO_EXTENSION) ) {
+			$template .= '.php';
 		}
 
-		$path = self::DIR . "/$template.$ext";
+		$path = self::DIR . '/' . ltrim($template, '/');
 		if( file_exists( $path ) && is_readable( $path ) ) {
-			if( !empty($data) && is_array($data) ) {
-				extract( $data, EXTR_SKIP );
-			}
-
-			if ( $include ) {
-				include $path;
-			}
-
 			return $path;
 		}
 
@@ -269,6 +196,68 @@ class Plugin {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Register all of the needed hooks and actions.
+	 */
+	public function setup() {
+		require_once self::DIR . '/vendor/autoload.php';
+		// Allow people to change what capability is required to use this plugin.
+		$this->permissions = apply_filters( self::PREFIX . 'permissions', $this->permissions );
+
+		// load plugin languages
+		load_plugin_textdomain( self::DOMAIN, false,
+			basename( self::DIR ) . '/languages/' );
+
+		$this->register_plugin_page();
+	}
+
+	/**
+	 * Register new admin menu item
+	 *
+	 * @return $Page NikolayS93\WPAdminPage\Page
+	 */
+	public function register_plugin_page() {
+		/** @var Admin\Page */
+		$Page = new Admin\Page(
+			Plugin::get_option_name(),
+			__( 'New Plugin name Title', self::DOMAIN ),
+			array(
+				'parent'      => '', // for ex. woocommerce
+				'menu'        => __( 'Example', self::DOMAIN ),
+				'permissions' => $this->permissions,
+				'columns'     => 2,
+				// 'validate'    => array($this, 'validate_options'),
+			)
+		);
+
+		$Page->set_content( function () {
+			include Plugin::get_template( 'admin/template/menu-page' );
+		} );
+
+		$Page->add_section( new Admin\Section(
+			'Section',
+			__( 'Section', self::DOMAIN ),
+			function () {
+				include Plugin::get_template( 'admin/template/section' );
+			}
+		) );
+
+		$Page->add_metabox( new Admin\Metabox(
+			'metabox',
+			__( 'metabox', self::DOMAIN ),
+			function () {
+				include Plugin::get_template( 'admin/template/metabox' );
+			},
+			$position = 'side',
+			$priority = 'high'
+		) );
+
+		$Page->set_assets( function () {
+		} );
+
+		return $Page;
 	}
 }
 
