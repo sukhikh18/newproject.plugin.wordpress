@@ -1,0 +1,1 @@
+## New plugin wordpress boilerplate
