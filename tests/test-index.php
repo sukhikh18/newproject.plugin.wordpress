@@ -72,14 +72,24 @@ class PluginTest extends WP_UnitTestCase {
 		$this->assertEquals( $this->Plugin::get_template('/' . $template . '.php'), $tpl . '.php' );
 	}
 
-	public function test_get_setting() {
-		/** @todo learn to stay awake for 24 hours */
-		$this->assertTrue( true );
+	public function test_set_setting() {
+		$this->assertTrue( $this->Plugin::set_setting('test', 1) );
+		$this->assertFalse( $this->Plugin::set_setting('test', 1) );
+		$this->assertTrue( $this->Plugin::set_setting('test', 2, 'context') );
+		$this->assertTrue( $this->Plugin::set_setting(array('test2' => 3)) );
 	}
 
-	public function test_set_setting() {
-		/** @todo */
-		$this->assertTrue( true );
+	public function test_get_setting() {
+		$this->assertEquals( $this->Plugin::get_setting('test', false), 1 );
+		$this->assertEquals( $this->Plugin::get_setting('test', false, 'context'), 2 );
+		$this->assertEquals( $this->Plugin::get_setting('test2', false), 3 );
+		// Reset options
+		delete_option( $this->Plugin::get_option_name() );
+		delete_option( $this->Plugin::get_option_name('context') );
+
+		$this->assertFalse( $this->Plugin::get_setting('test', false) );
+		$this->assertNull( $this->Plugin::get_setting('test', null, 'context') );
+		$this->assertTrue( $this->Plugin::get_setting('test2', true) );
 	}
 
 	public function test_register_plugin_page() {
