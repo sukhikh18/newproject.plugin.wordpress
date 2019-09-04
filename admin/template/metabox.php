@@ -1,5 +1,7 @@
 <?php
 
+namespace NikolayS93\PluginName;
+
 use NikolayS93\WPAdminForm\Form as Form;
 
 $data = array(
@@ -35,7 +37,7 @@ $form = new Form( $data, $is_table = true );
 $form->display();
 
 echo "<pre>";
-print_r( Plugin::get_setting( 'all', array() ) );
+print_r( Plugin()->get_setting( null, array() ) );
 echo "</pre>";
 
 submit_button( 'Сохранить', 'primary right', 'save_changes' );

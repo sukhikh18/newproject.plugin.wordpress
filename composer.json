@@ -3,6 +3,11 @@
     "nikolays93/wp-admin-form": "dev-master",
     "nikolays93/wp-admin-page": "dev-master"
   },
+  "autoload": {
+    "psr-4": {
+      "NikolayS93\\PluginName\\": "include\\class"
+    }
+  },
   "repositories": [
     {
       "type": "git",

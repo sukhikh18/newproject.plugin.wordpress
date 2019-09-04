@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: plugin\n"
-"POT-Creation-Date: 2019-08-19 14:22+0400\n"
-"PO-Revision-Date: 2019-08-19 14:22+0400\n"
+"POT-Creation-Date: 2019-08-28 17:35+0400\n"
+"PO-Revision-Date: 2019-08-28 17:36+0400\n"
 "Last-Translator: Nikolays93 <nikolays93@ya.ru>\n"
 "Language-Team: NikolayS93 <NikolayS93@yandex.ru>\n"
 "Language: ru_RU\n"
@@ -28,21 +28,21 @@ msgstr "Новый плагин"
 msgid "New plugin boilerplate"
 msgstr "Фундамент нового плагина"
 
-#: index.php:109
+#: include/class/Register.php:28
 msgid "New Plugin name Title"
 msgstr "Название нового плагина"
 
-#: index.php:112
+#: include/class/Register.php:31
 msgid "Example"
-msgstr ""
+msgstr "Пример"
 
-#: index.php:125
+#: include/class/Register.php:47
 msgid "Section"
-msgstr ""
+msgstr "Секция"
 
-#: index.php:133
-msgid "metabox"
-msgstr ""
+#: include/class/Register.php:55
+msgid "MetaBox"
+msgstr "Мета бокс"
 
 #: vendor/NikolayS93/wp-admin-form/src/templates/select.php:8
 msgid "Choose an option"
