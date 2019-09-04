@@ -20,7 +20,7 @@ trait Singleton {
 					->newInstanceWithoutConstructor();
 				call_user_func_array( array( static::$instance, "__init" ), func_get_args() );
 			} catch ( \ReflectionException $e ) {
-				wp_die($e->getMessage());
+				wp_die( $e->getMessage() );
 			}
 		}
 

@@ -7,14 +7,6 @@ use NikolayS93\WPAdminPage\Section;
 use NikolayS93\WPAdminPage\Metabox;
 
 class Register {
-	/**
-	 * @var Plugin
-	 */
-	private $Plugin;
-
-	function __construct() {
-		$this->Plugin = Plugin();
-	}
 
 	/**
 	 * Call this method before activate plugin
@@ -40,44 +32,45 @@ class Register {
 	 * @return Page $Page
 	 */
 	public function register_plugin_page() {
+		$Plugin = Plugin();
 
 		$Page = new Page(
-			$this->Plugin->get_option_name(),
-			__( 'New Plugin name Title', $this->Plugin::DOMAIN ),
+			$Plugin->get_option_name(),
+			__( 'New Plugin name Title', Plugin::DOMAIN ),
 			array(
 				'parent'      => '', // for ex. woocommerce
-				'menu'        => __( 'Example', $this->Plugin::DOMAIN ),
-				'permissions' => $this->Plugin->get_permissions(),
+				'menu'        => __( 'Example', Plugin::DOMAIN ),
+				'permissions' => $Plugin->get_permissions(),
 				'columns'     => 2,
 				// 'validate'    => array($this, 'validate_options'),
 			)
 		);
 
-		$Page->set_content( function () {
-			if ( $template = $this->Plugin->get_template( 'admin/template/menu-page' ) ) {
+		$Page->set_content( function () use ($Plugin) {
+			if ( $template = $Plugin->get_template( 'admin/template/menu-page' ) ) {
 				include $template;
 			}
 		} );
 
-		if ( $template = $this->Plugin->get_template( 'admin/template/section' ) ) {
+		if ( $template = $Plugin->get_template( 'admin/template/section' ) ) {
 			$Page->add_section( new Section(
 				'section',
-				__( 'Section', $this->Plugin::DOMAIN ),
+				__( 'Section', Plugin::DOMAIN ),
 				$template
 			) );
 		}
 
-		if ( $template = $this->Plugin->get_template( 'admin/template/metabox' ) ) {
+		if ( $template = $Plugin->get_template( 'admin/template/metabox' ) ) {
 			$Page->add_metabox( new Metabox(
 				'metabox',
-				__( 'MetaBox', $this->Plugin::DOMAIN ),
+				__( 'MetaBox', Plugin::DOMAIN ),
 				$template,
 				$position = 'side',
 				$priority = 'high'
 			) );
 		}
 
-		$Page->set_assets( function () {
+		$Page->set_assets( function () use ($Plugin) {
 		} );
 
 		return $Page;

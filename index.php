@@ -25,7 +25,7 @@ if ( ! defined( __NAMESPACE__ . '\PLUGIN_DIR' ) ) {
 }
 
 require_once ABSPATH . "wp-admin/includes/plugin.php";
-if( ! include_once PLUGIN_DIR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' ) {
+if ( ! include_once PLUGIN_DIR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' ) {
 	include PLUGIN_DIR . 'include/class/Creational/Singleton.php';
 	include PLUGIN_DIR . 'include/class/Plugin.php';
 	include PLUGIN_DIR . 'include/class/Register.php';
@@ -44,7 +44,7 @@ function Plugin() {
  * Initialize this plugin once all other plugins have finished loading.
  */
 add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin', 10 );
-add_action( 'plugins_loaded', function() {
+add_action( 'plugins_loaded', function () {
 
 	$Register = new Register();
 	$Register->register_plugin_page();
