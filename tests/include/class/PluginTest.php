@@ -44,14 +44,14 @@ class PluginTest extends WP_UnitTestCase {
 	}
 
 	public function testGet_option_name() {
-		$filter_name = $this->Plugin::PREFIX . 'get_option_name';
+		$filter_name = Plugin::PREFIX . 'get_option_name';
 		$option_name = 'test';
 
 		$this->assertEquals( $this->Plugin->get_option_name(),
-			apply_filters( $filter_name, $this->Plugin::DOMAIN, null ) );
+			apply_filters( $filter_name, Plugin::DOMAIN, null ) );
 
 		$this->assertEquals( $this->Plugin->get_option_name( $option_name ),
-			apply_filters( $filter_name, $this->Plugin::PREFIX . $option_name, $option_name ) );
+			apply_filters( $filter_name, Plugin::PREFIX . $option_name, $option_name ) );
 	}
 
 	public function testGet_permissions() {
@@ -70,7 +70,7 @@ class PluginTest extends WP_UnitTestCase {
 	}
 
 	public function testGet_url() {
-		$filter_name = $this->Plugin::PREFIX . 'get_plugin_url';
+		$filter_name = Plugin::PREFIX . 'get_plugin_url';
 		$plugins_url = plugins_url();
 		$plugin_url  = $plugins_url . '/' . basename( $this->Plugin->get_dir() );
 
