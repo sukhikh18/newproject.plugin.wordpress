@@ -17,18 +17,18 @@
 namespace NikolayS93\PluginName;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit( 'You shall not pass' );
+    exit( 'You shall not pass' );
 }
 
 if ( ! defined( __NAMESPACE__ . '\PLUGIN_DIR' ) ) {
-	define( __NAMESPACE__ . '\PLUGIN_DIR', dirname( __FILE__ ) . DIRECTORY_SEPARATOR );
+    define( __NAMESPACE__ . '\PLUGIN_DIR', dirname( __FILE__ ) . DIRECTORY_SEPARATOR );
 }
 
 require_once ABSPATH . "wp-admin/includes/plugin.php";
 if ( ! include_once PLUGIN_DIR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' ) {
-	include PLUGIN_DIR . 'include/class/Creational/Singleton.php';
-	include PLUGIN_DIR . 'include/class/Plugin.php';
-	include PLUGIN_DIR . 'include/class/Register.php';
+    include PLUGIN_DIR . 'include/class/Creational/Singleton.php';
+    include PLUGIN_DIR . 'include/class/Plugin.php';
+    include PLUGIN_DIR . 'include/class/Register.php';
 }
 
 /**
@@ -37,7 +37,7 @@ if ( ! include_once PLUGIN_DIR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php'
  * @return Plugin
  */
 function Plugin() {
-	return Plugin::get_instance();
+    return Plugin::get_instance();
 }
 
 /**
@@ -46,12 +46,15 @@ function Plugin() {
 add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin', 10 );
 add_action( 'plugins_loaded', function () {
 
-	$Register = new Register();
-	$Register->register_plugin_page();
+    $Register = new Register();
+    $Register->register_plugin_page();
 
 }, 20 );
 
 
-register_activation_hook( __FILE__, array( __NAMESPACE__ . '\Register', 'activate' ) );
-register_deactivation_hook( __FILE__, array( __NAMESPACE__ . '\Register', 'deactivate' ) );
-register_uninstall_hook( __FILE__, array( __NAMESPACE__ . '\Register', 'uninstall' ) );
+register_activation_hook( __FILE__,
+    array( __NAMESPACE__ . '\Register', 'activate' ) );
+register_deactivation_hook( __FILE__,
+    array( __NAMESPACE__ . '\Register', 'deactivate' ) );
+register_uninstall_hook( __FILE__,
+    array( __NAMESPACE__ . '\Register', 'uninstall' ) );
