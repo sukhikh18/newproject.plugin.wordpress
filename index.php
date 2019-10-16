@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
  * Plugin Name: New plugin
  * Plugin URI: https://github.com/nikolays93
  * Description: New plugin boilerplate
@@ -12,23 +11,48 @@
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: _plugin
  * Domain Path: /languages/
+ *
+ * @package Newproject.WordPress.plugin
  */
 
 namespace NikolayS93\PluginName;
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit( 'You shall not pass' );
+	exit( 'You shall not pass' );
 }
 
 if ( ! defined( __NAMESPACE__ . '\PLUGIN_DIR' ) ) {
-    define( __NAMESPACE__ . '\PLUGIN_DIR', dirname( __FILE__ ) . DIRECTORY_SEPARATOR );
+	define( __NAMESPACE__ . '\PLUGIN_DIR', dirname( __FILE__ ) . DIRECTORY_SEPARATOR );
 }
 
-require_once ABSPATH . "wp-admin/includes/plugin.php";
+if ( ! function_exists( 'include_plugin_file' ) ) {
+	/**
+	 * Safe dynamic expression include.
+	 *
+	 * @param string $path relative path.
+	 */
+	function include_plugin_file( $path ) {
+		if ( 0 !== strpos( $path, PLUGIN_DIR ) ) {
+			$path = PLUGIN_DIR . $path;
+		}
+		if ( is_file( $path ) && is_readable( $path ) ) {
+			return include $path; // phpcs:ignore
+		}
+
+		return false;
+	}
+}
+
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
 if ( ! include_once PLUGIN_DIR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' ) {
-    include PLUGIN_DIR . 'include/class/Creational/Singleton.php';
-    include PLUGIN_DIR . 'include/class/Plugin.php';
-    include PLUGIN_DIR . 'include/class/Register.php';
+	array_map(
+		__NAMESPACE__ . '\include_plugin_file',
+		array(
+			'include/class/Creational/Singleton.php',
+			'include/class/Plugin.php',
+			'include/class/Register.php',
+		)
+	);
 }
 
 /**
@@ -36,25 +60,23 @@ if ( ! include_once PLUGIN_DIR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php'
  *
  * @return Plugin
  */
-function Plugin() {
-    return Plugin::get_instance();
+function plugin() {
+	return Plugin::get_instance();
 }
 
 /**
  * Initialize this plugin once all other plugins have finished loading.
  */
 add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin', 10 );
-add_action( 'plugins_loaded', function () {
+add_action(
+	'plugins_loaded',
+	function () {
+		$register = new Register();
+		$register->register_plugin_page();
+	},
+	20
+);
 
-    $Register = new Register();
-    $Register->register_plugin_page();
-
-}, 20 );
-
-
-register_activation_hook( __FILE__,
-    array( __NAMESPACE__ . '\Register', 'activate' ) );
-register_deactivation_hook( __FILE__,
-    array( __NAMESPACE__ . '\Register', 'deactivate' ) );
-register_uninstall_hook( __FILE__,
-    array( __NAMESPACE__ . '\Register', 'uninstall' ) );
+register_activation_hook( __FILE__, array( __NAMESPACE__ . '\Register', 'activate' ) );
+register_deactivation_hook( __FILE__, array( __NAMESPACE__ . '\Register', 'deactivate' ) );
+register_uninstall_hook( __FILE__, array( __NAMESPACE__ . '\Register', 'uninstall' ) );

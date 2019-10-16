@@ -1,22 +1,22 @@
 <?php
+/**
+ * Page main section area output file
+ *
+ * @package Newproject.WordPress.plugin
+ */
 
-// use NikolayS93\WPListTable as Table;
+use NikolayS93\WPListTable as Table;
 
-// // for example
-// $table = new Table();
-// $table->set_columns();
-// // @todo repair it
-// // $table->set_sortable_columns();
+/**
+ * WordPress table example
+ */
 
-// foreach (get_posts() as $post) {
-//     $table->set_value( array(
-//         'title' => esc_html( $post->post_title ),
-//     ) );
-// }
+$table = new Table();
+$table->set_columns();
 
-// $table->prepare_items();
-// $table->display();
+foreach ( get_posts() as $_post ) {
+	$table->set_value( array( 'title' => esc_html( $_post->post_title ) ) );
+}
 
-// printf( '<input type="hidden" name="page" value="%s" />', $_REQUEST['page'] );
-?>
-<p>Some section text.</p>
+$table->prepare_items();
+$table->display();
