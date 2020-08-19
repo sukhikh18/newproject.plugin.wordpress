@@ -49,8 +49,8 @@ if ( ! include_once PLUGIN_DIR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php'
 		__NAMESPACE__ . '\include_plugin_file',
 		array(
 			'include/class/Creational/Singleton.php',
-			'include/class/Plugin.php',
-			'include/class/Register.php',
+			'include/class-plugin.php',
+			'include/class-register.php',
 		)
 	);
 }
