@@ -40,12 +40,20 @@ $data = array(
 $form = new Form( $data, $is_table = true );
 $form->display();
 
-array_walk(
-	Plugin()->get_setting( null, array() ),
-	function ( $value, $key ) {
-		echo esc_html( "$key: $value\r\n" );
+$option        = new Option();
+$option_values = $option
+	->fetch()
+	->get_array();
+
+if ( ! empty( $option_values ) ) {
+	echo '<pre>';
+
+	foreach ( $option_values as $option_key => $option_value ) {
+		echo esc_html( "$option_key: $option_value\r\n" );
 	}
-);
+
+	echo '</pre>';
+}
 
 submit_button( 'Сохранить', 'primary right', 'save_changes' );
 echo '<div class="clear"></div>';
