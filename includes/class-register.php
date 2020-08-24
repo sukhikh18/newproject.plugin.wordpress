@@ -35,24 +35,6 @@ class Register {
 	}
 
 	/**
-	 * Initialize this plugin
-	 */
-	public static function init() {
-		$pagetitle = __( 'New plugin', DOMAIN );
-		$menuname  = __( 'Example', DOMAIN );
-
-		self::register_plugin_page(
-			$pagetitle,
-			array(
-				'parent'      => '', // for ex. woocommerce.
-				'menu'        => $menuname,
-				'permissions' => 'manage_options',
-				'columns'     => 2,
-			)
-		);
-	}
-
-	/**
 	 * Register new admin menu item
 	 *
 	 * @param  string $pagename  h1 title on plugin page.
@@ -69,7 +51,7 @@ class Register {
 			new Section(
 				'section',
 				__( 'Section', DOMAIN ),
-				IO::get_template( 'admin/template/section' )
+				realpath( PLUGIN_DIR . 'admin/template/section.php' )
 			)
 		);
 
@@ -77,7 +59,7 @@ class Register {
 			new Metabox(
 				'metabox',
 				__( 'MetaBox', DOMAIN ),
-				IO::get_template( 'admin/template/metabox' ),
+				realpath( PLUGIN_DIR . 'admin/template/metabox.php' ),
 				$position = 'side',
 				$priority = 'high'
 			)
@@ -90,7 +72,11 @@ class Register {
 	 * [@todo write plugin_page_content description]
 	 */
 	public static function plugin_page_content() {
-		return IO::get_template( 'admin/template/menu-page', true );
+		$page_content = realpath( PLUGIN_DIR . 'admin/template/menu-page.php' );
+
+		if ( $page_content ) {
+			require $page_content;
+		}
 	}
 
 	/**

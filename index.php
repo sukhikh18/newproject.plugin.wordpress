@@ -43,11 +43,25 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once PLUGIN_DIR . 'vendor/autoload.php';
 require_once PLUGIN_DIR . 'includes/autoload.php';
 
-/**
- * Initialize this plugin once all other plugins have finished loading.
- */
-add_action( 'plugins_loaded', array( Register::class, 'init' ), 10 );
-
 register_activation_hook( __FILE__, array( Register::class, 'activate' ) );
 register_deactivation_hook( __FILE__, array( Register::class, 'deactivate' ) );
 register_uninstall_hook( __FILE__, array( Register::class, 'uninstall' ) );
+
+/**
+ * Initialize this plugin once all other plugins have finished loading.
+ */
+add_action(
+	'plugins_loaded',
+	function() {
+		Register::register_plugin_page(
+			__( 'New plugin', DOMAIN ),
+			array(
+				'parent'      => '', // for ex. woocommerce.
+				'menu'        => __( 'Example', DOMAIN ),
+				'permissions' => 'manage_options',
+				'columns'     => 2,
+			)
+		);
+	},
+	10
+);

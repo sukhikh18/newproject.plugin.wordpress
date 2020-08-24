@@ -1,3 +1,11 @@
-[![Build Status](https://travis-ci.org/nikolays93/newproject.wordpress.plugin.svg?branch=master)](https://travis-ci.org/nikolays93/newproject.wordpress.plugin)
-
 ## New project wordpress plugin boilerplate
+
+### Как установить/использовать Code Sniffer
+
+> _Убедитесь что пакетный менаджер composer установлен на вашем компьютере_
+
+0. Откройте консоль в папке с проектом
+1. Запустите команду `composer install` для установки
+
+> Запустить проверку кода можно командой `vendor/bin/phpcs`  
+> Используйте `vendor/bin/phpcbf` для автоисправлений кода  
