@@ -51,18 +51,4 @@ register_uninstall_hook( __FILE__, array( Register::class, 'uninstall' ) );
 /**
  * Initialize this plugin once all other plugins have finished loading.
  */
-add_action(
-	'plugins_loaded',
-	function() {
-		Register::register_plugin_page(
-			__( 'New plugin', DOMAIN ),
-			array(
-				'parent'      => '', // for ex. woocommerce.
-				'menu'        => __( 'Example', DOMAIN ),
-				'permissions' => 'manage_options',
-				'columns'     => 2,
-			)
-		);
-	},
-	10
-);
+add_action( 'plugins_loaded', array( Register::class, 'plugin_settings_page' ) )
