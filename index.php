@@ -37,7 +37,8 @@ if ( ! defined( __NAMESPACE__ . 'PREFIX' ) ) {
 }
 
 // load plugin languages.
-load_plugin_textdomain( DOMAIN, false, basename( PLUGIN_DIR ) . $plugin_data['DomainPath'] );
+$locale = apply_filters( 'plugin_locale', determine_locale(), DOMAIN );
+load_textdomain( DOMAIN, PLUGIN_DIR . 'languages/' . DOMAIN . '-' . $locale . '.mo' );
 
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once PLUGIN_DIR . 'vendor/autoload.php';
